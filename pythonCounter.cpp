@@ -20,23 +20,27 @@ int main()
 		set<string> functions;
 		map<int, string> fileMap;
 		string line;
-	  	  ifstream myfile ("reddit_mining.py");
-	  	  int lineNumber =1;
-
-
-
-
-
-
-
-
-	  	  
-	  	  if (myfile.is_open())
+	  	ifstream myfile ("reddit_mining.py");
+	  	int lineNumber = 1;
+	  	
+	  	if (myfile.is_open())
+	  	{
+	  	  while ( getline (myfile,line))
 	  	  {
-	  	    while ( getline (myfile,line) )
-	  	    {
-	  	    	string temp=trim(line);
-	  	    	fileMap[lineNumber]=line;
+	  	  	fileMap[lineNumber]=line;
+	  	  	lineNumber++;
+	  	  }
+	  	  myfile.close();
+	  	}
+	  	else 
+	  		cout << "Unable to open file"; 
+
+	  	if (fileMap.size()>0)
+	  	{
+	  		for (map<int, string>::iterator it = fileMap.begin(); it != fileMap.end(); ++it) 
+	  		{
+	  		    string lineOfCode = it->second;
+	  		    string temp = trim(lineOfCode);
 	  	    	if (temp.length()>0 && (temp.substr(0,4)).compare("def ")==0)
 	  	    	{
 	  	    		//found a method definition
@@ -44,18 +48,19 @@ int main()
 	  	    		string function_name=temp.substr(4,(first-4));
 	  	    		functions.insert(function_name);
 	  	    	}
-	  	        lineNumber++;
-	  	    }
-	  	    myfile.close();
-
-	  	    int ii=1;
+	  		}
+	  		int ii=1;
 	  	    for (set<string>::iterator it=functions.begin(); it!=functions.end(); ++it)
 	  	    {
 	  	    	cout <<"Method "<< ii <<" -->\t" << *it<<endl;
 	  	    	ii++;
 	  	    }
-	  	  }
+	  	}
 
-	  	  else cout << "Unable to open file"; 
-	  		return 0;
+
+
+
+
+
+	  	return 0;
 }
