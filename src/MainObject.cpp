@@ -81,6 +81,7 @@ MainObject::MainObject()
 	workThreadsCount = 0;		// default is no worker threads    // Modification: 2015.12
  
     visualDiff = false;         // default don't create diff_dump.txt and highlighted_diff.html
+	funcDiff = false;
 
 	// Modification: 2013.04
 	match_threshold = DIFF_MATCH_THRESHOLD;	// default modified lines threshold
@@ -851,6 +852,11 @@ int MainObject::ParseCommandLine(int argc, char *argv[])
 		else if ( arg == "-nouncounted" )
 		{
 			g_no_uncounted = true;
+		}
+		else if( arg == "-funcDiff" )
+		{
+			printf("************* Function level differencing enabled *************\n");
+			funcDiff = true;
 		}
 		else
 		{

@@ -18,6 +18,8 @@
 // Provide declaration
 extern	bool	visualDiff;
 
+extern  bool  funcDiff;
+
 //! Main counting object class.
 /*!
 * \class MainObject
