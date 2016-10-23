@@ -18,7 +18,7 @@
 // Provide declaration
 extern	bool	visualDiff;
 
-extern  bool  funcDiff;
+extern  bool  doFuncDiff;
 
 //! Main counting object class.
 /*!

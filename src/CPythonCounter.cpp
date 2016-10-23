@@ -1144,7 +1144,7 @@ int CPythonCounter::ParseFunctionName(const string &line, string & needIndentati
 			if (idx != string::npos)
 			{
 				functionName = CUtil::ClearRedundantSpaces(str.substr(0, idx));
-				if(funcDiff)
+				if(doFuncDiff)
 					printf("\n--> %s\n" , functionName.c_str());
 				return 1;
 			}
