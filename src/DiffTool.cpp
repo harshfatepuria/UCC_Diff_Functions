@@ -485,17 +485,36 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
     if ( HasUserCancelled() )
         return 0;
 
-    // compare the matched files in BaselineA to BaselineB
-    // perform matching on web separation files Modification: these do not exist when initially matched
     userIF->updateProgress("Performing functional level differencing.......................", false);
 
-    // Read/Analyze/Count keywords for a pair of files then Diff between
-    ProcessPairs();		// Recommended to Run on worker Threads
+	string fileA, fileB;
+	// Traverse the matchedFilesList and perform function level matching
+	for (MatchingType::iterator myI = matchedFilesList.begin(); myI != matchedFilesList.end(); myI++)
+	{
+		if ((*myI).second.first == NULL)
+			fileA = "NA";
+		else
+		{
+			// Do not output any embedded file names !
+			if ( (*myI).second.first->second.file_name_isEmbedded )
+				continue;
 
-    // print the comparison results
-    userIF->updateProgress("Saving function level differencing results to files..................", false);
+			fileA = (*myI).second.first->second.file_name;
+		}
 
-    PrintDiffResults();
+		if ((*myI).second.second == NULL)
+			fileB = "NA";
+		else
+		{
+			// Do not output any embedded file names !
+			if ( (*myI).second.second->second.file_name_isEmbedded )
+				continue;
+
+			fileB = (*myI).second.second->second.file_name;
+		}
+
+		//Call function level diff for fileA and fileB
+	}
 
     // Release Matched Files list as no longer needed
     matchedFilesList.resize( 0 );

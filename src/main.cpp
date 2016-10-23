@@ -152,9 +152,9 @@ int main(int argc, char *argv[])
 */
 			if(doFuncDiff)
 			{
-				DiffTool diffTool;
-				diffTool.funcDiffProcess(argc, argv);
-				duplicate_threshold_used = diffTool.GetDuplicateThreshold();
+				DiffTool funcDiff;
+				funcDiff.funcDiffProcess(argc, argv);
+				duplicate_threshold_used = funcDiff.GetDuplicateThreshold();
 
 				// Make sure worker Threads are done.  Could be half done due to LOW Memory.
 				FinishWorkerThreads();
