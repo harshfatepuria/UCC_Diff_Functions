@@ -144,6 +144,12 @@ void GMainWindow::on_btnStart_clicked()
 		return;
 	}
 
+    if (!ui.chkDifferencing->isChecked() && ui.chkFuncDifferencing->isChecked())
+    {
+        QMessageBox::warning(this, tr("Function Level Differencing is supported with Differencing only"), tr("For Function Level Differencing, you must select Differencing option as well"));
+        return;
+    }
+
     if ( ( ui.chkDifferencing->isChecked() )
       && ( ( 0 == ui.lwFileListA->count() ) || ( 0 == ui.lwFileListB->count() ) ) )
     {
@@ -370,6 +376,9 @@ void GMainWindow::on_btnStart_clicked()
         if(ui.chkVisualDiffResult->isChecked()){
             argList.append("-visualdiff");
         }
+        if(ui.chkFuncDifferencing->isChecked()){
+            argList.append("-funcDiff");
+        }
     }
 
 	if (ui.chkDupThreshold->isChecked())
@@ -472,6 +481,7 @@ void GMainWindow::on_btnStart_clicked()
 	progressBar->show();
 
     bool			doDiff = false;
+    bool            doFuncDiff = false;
     bool			doDups = false;
     double			duplicate_threshold_used = 0.0;
     unsigned long	files_A_count = 0;
@@ -479,8 +489,8 @@ void GMainWindow::on_btnStart_clicked()
 	if (ui.chkDifferencing->isChecked())
 	{
         doDiff = true;
-		DiffTool diffTool;
-		diffTool.ConnectUserIF(this);
+        /*DiffTool diffTool;
+        diffTool.ConnectUserIF(this);
         diffTool.diffToolProcess(argList.count(), argv);
         duplicate_threshold_used = diffTool.GetDuplicateThreshold();    // Modification: 2015.12
 
@@ -491,7 +501,19 @@ void GMainWindow::on_btnStart_clicked()
         CountPhysicalFiles( SourceFileA, files_A_count );               // Modification: 2015.12
 
         files_B_count = SourceFileB.size();                             // Modification: 2015.12
-        CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12
+        CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12*/
+
+        if (ui.chkFuncDifferencing->isChecked())
+        {
+            doFuncDiff = true;
+            DiffTool diffTool;
+            diffTool.ConnectUserIF(this);
+            diffTool.funcDiffProcess(argList.count(), argv);
+            duplicate_threshold_used = diffTool.GetDuplicateThreshold();
+
+            // Make sure worker Threads are done.  Could be half done due to LOW Memory.
+            FinishWorkerThreads();
+        }
     }
 	else
 	{

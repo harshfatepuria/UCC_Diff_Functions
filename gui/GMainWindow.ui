@@ -582,7 +582,7 @@
         <item>
          <widget class="QCheckBox" name="chkWarnings">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri';&quot;&gt;If this is set then no warning messages will show on the user interface.  Warning messages will still be in the log files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri';&quot;&gt;If this is set then no warning messages will show on the user interface.  Warning messages will still be in the log files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
            <string>No Warnings</string>
@@ -666,7 +666,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri';&quot;&gt;Tell UCC what is a reasonable RAM limit to use to decide if a warning is needed about estimated minimum RAM use.  # may be 1 (default is 5 if not specified) up to 5120.  Each number above zero represents an increment of 100 Mbytes.  So 10 is approximately 1 Gbyte and 5120 is exactly 500 Gbytes.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri';&quot;&gt;Tell UCC what is a reasonable RAM limit to use to decide if a warning is needed about estimated minimum RAM use.  # may be 1 (default is 5 if not specified) up to 5120.  Each number above zero represents an increment of 100 Mbytes.  So 10 is approximately 1 Gbyte and 5120 is exactly 500 Gbytes.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Ram Limit:  1 to 5120</string>
@@ -856,31 +856,28 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri';&quot;&gt;If this is set then there will be no Uncounted file message for either the user interface or the log files.  Not recommended except for experienced users.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri';&quot;&gt;If this is set then there will be no Uncounted file message for either the user interface or the log files.  Not recommended except for experienced users.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>No Uncounted File Message</string>
        </property>
       </widget>
-      <zorder>chkDupThreshold</zorder>
-      <zorder>chkDifferencing</zorder>
-      <zorder>chkModThreshold</zorder>
-      <zorder>txtModThreshold</zorder>
-      <zorder>chkTruncThreshold</zorder>
-      <zorder>chkVisualDiffResult</zorder>
-      <zorder>txtTruncThreshold</zorder>
-      <zorder>txtDupThreshold</zorder>
-      <zorder>grpbProcessing</zorder>
-      <zorder>grpbOutputFormat</zorder>
-      <zorder>chkRamLimit</zorder>
-      <zorder>txtRamLimit</zorder>
-      <zorder>chkThreads</zorder>
-      <zorder>txtThreads</zorder>
-      <zorder>layoutWidget</zorder>
-      <zorder>chkProcLinks</zorder>
-      <zorder>chkClearCaseFiles</zorder>
-      <zorder>chkClearCaseFiles</zorder>
-      <zorder>chkUncounted</zorder>
+      <widget class="QCheckBox" name="chkFuncDifferencing">
+       <property name="geometry">
+        <rect>
+         <x>640</x>
+         <y>180</y>
+         <width>201</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Differencing (&lt;/span&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;-d&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;)&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Enables the differencing function. If not specified, only the counting functions will execute.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Function Level Differencing</string>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
@@ -957,7 +954,7 @@
      <x>0</x>
      <y>0</y>
      <width>1148</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="windowicon" stdset="0">
@@ -1065,6 +1062,7 @@
   <tabstop>txtExtensionFile</tabstop>
   <tabstop>btnBrowseExtensionFile</tabstop>
   <tabstop>chkDifferencing</tabstop>
+  <tabstop>chkFuncDifferencing</tabstop>
   <tabstop>chkModThreshold</tabstop>
   <tabstop>txtModThreshold</tabstop>
   <tabstop>chkTruncThreshold</tabstop>

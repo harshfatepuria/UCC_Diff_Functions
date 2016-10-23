@@ -512,9 +512,22 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
 
 			fileB = (*myI).second.second->second.file_name;
 		}
-
+        cout<<fileA<<"\t"<<fileB<<endl;
 		//Call function level diff for fileA and fileB
 	}
+
+
+
+    //Added for GUI output. Will remove later from this method
+
+    userIF->updateProgress("Performing files comparison.......................", false);
+    ProcessPairs();
+    userIF->updateProgress("Saving Diff results to files..................", false);
+    PrintDiffResults();
+
+
+
+
 
     // Release Matched Files list as no longer needed
     matchedFilesList.resize( 0 );
