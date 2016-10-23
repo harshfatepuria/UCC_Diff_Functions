@@ -87,7 +87,6 @@ string		cmdLine;						//!< Executed command line string
 
 bool		isDiff = false;					//!< Has differencing been requested (-d)?
 bool		visualDiff = false;				//!< Print visual diff
-bool        doFuncDiff = false;
 
 bool		isDup = true;					//!< Is Duplicate checking wanted ? ( duplicate_threshold >= 0.0 )
 

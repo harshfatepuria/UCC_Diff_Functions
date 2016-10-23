@@ -430,7 +430,6 @@ Output to files especially should be done single threaded from Main thread.
 int DiffTool::funcDiffProcess(int argc, char *argv[])
 {
     // create a user interface object
-    // Modification: 2013.04
     if (userIF == NULL)
         userIF = new UserIF();
 
@@ -439,14 +438,12 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
     BaselineFileName2 = BASELINE_INF2;
 
     // parse the command line input
-    // Modification: 2011.10
     if (!ParseCommandLine(argc, argv))
         ShowUsage();    // this will Exit
 
-    SetCounterOptions( CounterForEachLanguage );    // Modification: 2015.12
+    SetCounterOptions( CounterForEachLanguage );
 
 // add output directory if using QTGUI
-// Modification: 2013.04
 #ifdef QTGUI
     if (outDir != "")
 	{
@@ -457,7 +454,7 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
     if ( HasUserCancelled() )
         return 0;
 
-    // Enable Optimizations.  Start threads if wanted.    Modified: 2015.12
+    // Enable Optimizations.  Start threads if wanted.
     // Threads must be started (if wanted) before file Extension maps are done.
     string	start_threads_result_msg;
     StartThreads( start_threads_result_msg );
@@ -465,7 +462,6 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
         userIF->updateProgress( start_threads_result_msg, false );
 
     // generate user-defined language extension map
-    // Modification: 2011.05
     if (userExtMapFile.length() != 0)
         ReadUserExtMapping(userExtMapFile);
 
@@ -473,7 +469,6 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
         return 0;
 
     // Get file details List for DIFF use.  Only Web file source lines are in RAM buffers here.
-    // Modification: 2011.05
     if ( !ReadAllDiffFiles() ) // Set time_end_list_built & Shows 2 msgs, 1 per Baseline  Modification: 2015.12
         return 0;
 
@@ -481,164 +476,45 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
         return 0;
 
     // match files in BaselineA to BaselineB (does not include web separation files)
-    // Modification: 2013.04
-    userIF->updateProgress("Performing files matching.........................", false);    // Modification: 2015.12
+    userIF->updateProgress("Performing files matching for function level differencing.........................", false);
 
-    // Modification: 2011.05
-    MatchBaseLines( commonPathPrefixBoth );		// Extra info for faster Path matching    Modification: 2015.12
+    MatchBaseLines( commonPathPrefixBoth );		// Extra info for faster Path matching
 
-    // Include this small time as part of Match Baselines	0 to 1 second (rounded)
-    PrintMatchedPairs();	// Print time included as part of Match Baselines
+    time( &time_end_match_baselines );
 
-    time( &time_end_match_baselines );    // Modification: 2015.12
-
-    // Web files were buffered in RAM when list of File details was built.
-    // So below is NOT needed and actually can cause a memory access fault (Seg Fault on Linux)
-    // In some cases if number of HTML files is not same in both baselines.
-/*
-	if (CounterForEachLanguage[WEB]->total_filesA > 0 ||
-		CounterForEachLanguage[WEB]->total_filesB > 0)
-	{
-		// perform matching on web separation files
-		//userIF->updateProgress("Performing Web files matching.....................", false);    // Modification: 2015.12
-		//MatchBaseLines( commonPathPrefixBoth, true );
-
-		// Modification: 2013.04
-	#ifndef QTGUI
-		//userIF->updateProgress("DONE");    // Modification: 2015.12
-	#endif
-
-		time( &time_end_match_baselines_web );    // Modification: 2015.12
-	}
-	else
-		time_end_match_baselines_web = time_end_match_baselines;    // Modification: 2015.12
-*/
-
-    if ( HasUserCancelled() )    // Modification: 2013.04 2015.12
+    if ( HasUserCancelled() )
         return 0;
 
     // compare the matched files in BaselineA to BaselineB
     // perform matching on web separation files Modification: these do not exist when initially matched
-    // Modification: 2013.04
-    userIF->updateProgress("Performing files comparison.......................", false);
+    userIF->updateProgress("Performing functional level differencing.......................", false);
 
     // Read/Analyze/Count keywords for a pair of files then Diff between
     ProcessPairs();		// Recommended to Run on worker Threads
 
-    // Modification: 2013.04
-//#ifndef QTGUI
-//	userIF->updateProgress("\b\b\b\bDONE");    // Modification: 2015.12
-//#endif
-
     // print the comparison results
-    userIF->updateProgress("Saving Diff results to files..................", false);
+    userIF->updateProgress("Saving function level differencing results to files..................", false);
 
-    // Modification: 2011.05
     PrintDiffResults();
 
     // Release Matched Files list as no longer needed
     matchedFilesList.resize( 0 );
 
     // Include small time to save Diff results files
-    time( &time_end_process_pairs );        // Modification: 2015.12
+    time( &time_end_process_pairs );
 
-    // Modification: 2013.04
 #ifndef QTGUI
-    userIF->updateProgress("DONE");         // Modification: 2015.12
+    userIF->updateProgress("DONE");
 #endif
 
     if ( HasUserCancelled() )
         return 0;
 
-    if (duplicate_threshold >= 0.0)         // Modification: 2015.12
-    {
-        time( &time_end_process_pairs );    // Modification: 2015.12
+	UpdateCounterCounts( CounterForEachLanguage, &SourceFileA, true, true );
+	time( &time_end_process_pairs );
 
-        // This will show % done
-        userIF->updateProgress("Looking for duplicate files in Baseline-A ........", false);
-        FindDuplicateFiles( &SourceFileA, &duplicateFilesInA1, &duplicateFilesInA2, true, true );    // Modification: 2011.05
-
-        if ( HasUserCancelled() )    // Modification: 2013.04 2015.12
-            return 0;
-
-        // Include this small time as part of A Duplicates  0 to 1 second (rounded)
-        UpdateCounterCounts( CounterForEachLanguage, &SourceFileA, true, true );    // Modification: 2015.12
-        time( &time_end_find_duplicates );
-    }
-    else         // Modification: 2015.12
-    {
-        // Include this small time as part of Process Pairs  0 to 1 second (rounded)
-        UpdateCounterCounts( CounterForEachLanguage, &SourceFileA, true, true );    // Modification: 2015.12
-        time( &time_end_process_pairs );
-    }            // Modification: 2015.12
-
-// print the counting results for Baseline A (SLOC counts and complexity counts)
-    if (print_unified)
-        PrintTotalCountResults( CounterForEachLanguage, true, "Baseline-A-", &duplicateFilesInA2 );    // Modification: 2015.12
-    else
-        PrintCountResults( CounterForEachLanguage, true, "Baseline-A-", &duplicateFilesInA2 );    // Modification: 2015.12
-
-    if (print_cmplx)
-        PrintComplexityResults( CounterForEachLanguage, true, "Baseline-A-" );    // Modification: 2015.12
-
-    if (duplicate_threshold >= 0.0)
-    {
-        if (print_unified)
-            PrintTotalCountResults( CounterForEachLanguage, true, "Duplicates-A-", &duplicateFilesInA2, false );    // Modification: 2015.12
-        else
-            PrintCountResults( CounterForEachLanguage, true, "Duplicates-A-", &duplicateFilesInA2, false );    // Modification: 2015.12
-
-        if (print_cmplx)
-            PrintComplexityResults( CounterForEachLanguage, true, "Duplicates-A-", true );    // Modification: 2015.12
-
-        PrintDuplicateSummary(true, "Duplicates-A-");
-    }
-
-    if ( duplicate_threshold >= 0.0 )    // Modification: 2015.12
-    {
-        time( &time_end_print_results );    // Modification: 2015.12
-
-        // This will show % done
-        userIF->updateProgress("Looking for duplicate files in Baseline-B ........", false);
-        FindDuplicateFiles( &SourceFileB, &duplicateFilesInB1, &duplicateFilesInB2, true, false );    // Modification: 2011.05
-
-        if ( HasUserCancelled() )    // Modification: 2013.04 2015.12
-            return 0;
-
-        // Include this small time as part of B Duplicates	0 to 1 second (rounded)
-        UpdateCounterCounts( CounterForEachLanguage, &SourceFileB, false, true );
-        time( &time_end_find_duplicatesB );    // Modification: 2015.12
-    }
-    else      // Modification: 2015.12
-    {
-        // Include this small time as part of print results A	0 to 1 second (rounded)
-        UpdateCounterCounts( CounterForEachLanguage, &SourceFileB, false, true );
-        time( &time_end_print_results );
-    }        // Modification: 2015.12
-
-// print the counting results for Baseline B (SLOC counts and complexity counts)
-    if (print_unified)
-        PrintTotalCountResults( CounterForEachLanguage, false, "Baseline-B-", &duplicateFilesInB2 );    // Modification: 2015.12
-    else
-        PrintCountResults( CounterForEachLanguage, false, "Baseline-B-", &duplicateFilesInB2 );    // Modification: 2015.12
-
-    if (print_cmplx)
-        PrintComplexityResults( CounterForEachLanguage, false, "Baseline-B-" );    // Modification: 2015.12
-
-    if (duplicate_threshold >= 0.0)
-    {
-        if (print_unified)
-            PrintTotalCountResults( CounterForEachLanguage, false, "Duplicates-B-", &duplicateFilesInB2, false );    // Modification: 2015.12
-        else
-            PrintCountResults( CounterForEachLanguage, false, "Duplicates-B-", &duplicateFilesInB2, false );    // Modification: 2015.12
-
-        if (print_cmplx)
-            PrintComplexityResults( CounterForEachLanguage, false, "Duplicates-B-", true );    // Modification: 2015.12
-
-        PrintDuplicateSummary(false, "Duplicates-B-");
-    }
-
-    time( &time_end_print_resultsB );    // Modification: 2015.12
+	UpdateCounterCounts( CounterForEachLanguage, &SourceFileB, false, true );
+	time( &time_end_print_results );
 
     return 1;
 }

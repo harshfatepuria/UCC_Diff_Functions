@@ -7,7 +7,6 @@
 
 #include "CPythonCounter.h"
 #include "UCCExceptDump.h"		// Modification: 2015.12
-#include "MainObject.h"
 
 /*!
 * Constructs a CPythonCounter object.
@@ -1144,8 +1143,6 @@ int CPythonCounter::ParseFunctionName(const string &line, string & needIndentati
 			if (idx != string::npos)
 			{
 				functionName = CUtil::ClearRedundantSpaces(str.substr(0, idx));
-				if(doFuncDiff)
-					printf("\n--> %s\n" , functionName.c_str());
 				return 1;
 			}
         	}

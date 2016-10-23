@@ -60,11 +60,11 @@ int main(int argc, char *argv[])
 	int				retVal = EXCEPTION_DID_NOT_HAPPEN;	// 0 for backwards compatability
 	string			exception_msg;
 	bool			doDiff = false;
+	bool 			doFuncDiff = false;
 	bool			doDups = false;
 	double			duplicate_threshold_used = 0.0;
 	unsigned long	files_A_count = 0;
 	unsigned long	files_B_count = 0;
-	doFuncDiff = false;
 
 	Init_StackDump();		// Modification: 2015.12
 	CUtil::InitToLower();	// Initialize to lower helper array
@@ -91,7 +91,6 @@ int main(int argc, char *argv[])
 	// Change these as you wish
 	bool	show_any_times = true;
 	bool	show_total_only = false;
-    extern bool    doFuncDiff;
 
 	InitTimes();
 
@@ -128,7 +127,6 @@ int main(int argc, char *argv[])
 		for (int i = 0; i < argc; i++)
 		{
 			myArg = argv[i];
-			myArg = CUtil::ToLower( myArg );
 			if(myArg == "-funcDiff")
 			{
 				doFuncDiff = true;
@@ -138,7 +136,7 @@ int main(int argc, char *argv[])
 
 		if (doDiff)
 		{
-			// run the DiffTool to include differencing
+/*			// run the DiffTool to include differencing
 			DiffTool diffTool;
 			diffTool.diffToolProcess(argc, argv);
 			duplicate_threshold_used = diffTool.GetDuplicateThreshold();    // Modification: 2015.12
@@ -151,6 +149,16 @@ int main(int argc, char *argv[])
 
 			files_B_count = SourceFileB.size();                             // Modification: 2015.12
 			CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12
+*/
+			if(doFuncDiff)
+			{
+				DiffTool diffTool;
+				diffTool.funcDiffProcess(argc, argv);
+				duplicate_threshold_used = diffTool.GetDuplicateThreshold();
+
+				// Make sure worker Threads are done.  Could be half done due to LOW Memory.
+				FinishWorkerThreads();
+			}
 		}
 		else
 		{
@@ -169,24 +177,6 @@ int main(int argc, char *argv[])
 
 			files_A_count = SourceFileA.size();                             // Modification: 2015.12
 			CountPhysicalFiles( SourceFileA, files_A_count );               // Modification: 2015.12
-		}
-
-		if(doFuncDiff)
-		{
-			printf("\n*******doFuncDiff Begins*******\n");
-			DiffTool diffTool;
-			diffTool.funcDiffProcess(argc, argv);
-			duplicate_threshold_used = diffTool.GetDuplicateThreshold();    // Modification: 2015.12
-
-			// Make sure worker Threads are done.  Could be half done due to LOW Memory.
-			FinishWorkerThreads();                                          // Modification: 2015.12
-
-			files_A_count = SourceFileA.size();                             // Modification: 2015.12
-			CountPhysicalFiles( SourceFileA, files_A_count );               // Modification: 2015.12
-
-			files_B_count = SourceFileB.size();                             // Modification: 2015.12
-			CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12
-			printf("\n*******doFuncDiff ends*******\n");
 		}
 	}
 //    ALL below here to end of this file are  Modification: 2015.12
