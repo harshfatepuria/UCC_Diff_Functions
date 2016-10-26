@@ -44,7 +44,7 @@ public:
 	~DiffTool();
 
 	int diffToolProcess(int argc, char *argv[]);
-	int funcDiffProcess(int argc, char *argv[]);
+	int funcDiffProcess();
 
 	//! Differencing results class.
 	/*!

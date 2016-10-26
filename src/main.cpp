@@ -60,11 +60,11 @@ int main(int argc, char *argv[])
 	int				retVal = EXCEPTION_DID_NOT_HAPPEN;	// 0 for backwards compatability
 	string			exception_msg;
 	bool			doDiff = false;
-	bool 			doFuncDiff = false;
 	bool			doDups = false;
 	double			duplicate_threshold_used = 0.0;
 	unsigned long	files_A_count = 0;
 	unsigned long	files_B_count = 0;
+    isFuncDiff = false;
 
 	Init_StackDump();		// Modification: 2015.12
 	CUtil::InitToLower();	// Initialize to lower helper array
@@ -129,14 +129,14 @@ int main(int argc, char *argv[])
 			myArg = argv[i];
 			if(myArg == "-funcDiff")
 			{
-				doFuncDiff = true;
+                isFuncDiff = true;
 				break;
 			}
 		}
 
 		if (doDiff)
 		{
-/*			// run the DiffTool to include differencing
+			// run the DiffTool to include differencing
 			DiffTool diffTool;
 			diffTool.diffToolProcess(argc, argv);
 			duplicate_threshold_used = diffTool.GetDuplicateThreshold();    // Modification: 2015.12
@@ -149,16 +149,6 @@ int main(int argc, char *argv[])
 
 			files_B_count = SourceFileB.size();                             // Modification: 2015.12
 			CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12
-*/
-			if(doFuncDiff)
-			{
-				DiffTool funcDiff;
-				funcDiff.funcDiffProcess(argc, argv);
-				duplicate_threshold_used = funcDiff.GetDuplicateThreshold();
-
-				// Make sure worker Threads are done.  Could be half done due to LOW Memory.
-				FinishWorkerThreads();
-			}
 		}
 		else
 		{

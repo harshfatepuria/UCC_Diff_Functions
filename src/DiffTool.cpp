@@ -320,16 +320,22 @@ Output to files especially should be done single threaded from Main thread.
 	// Modification: 2011.05
 	PrintDiffResults();
 
+    // Modification: 2016.10
+#ifndef QTGUI
+    userIF->updateProgress("DONE");         // Modification: 2016.10
+#endif
+
+    //Call function level difference method //Modification: 2016.10
+    if(isFuncDiff)
+    {
+        funcDiffProcess();
+    }
+
 	// Release Matched Files list as no longer needed
 	matchedFilesList.resize( 0 );
 
 	// Include small time to save Diff results files
 	time( &time_end_process_pairs );        // Modification: 2015.12
-
-	// Modification: 2013.04
-#ifndef QTGUI
-	userIF->updateProgress("DONE");         // Modification: 2015.12
-#endif
 
 	if ( HasUserCancelled() )
 		return 0;
@@ -427,65 +433,10 @@ Output to files especially should be done single threaded from Main thread.
 	return 1;
 }
 
-int DiffTool::funcDiffProcess(int argc, char *argv[])
+int DiffTool::funcDiffProcess()
 {
-    // create a user interface object
-    if (userIF == NULL)
-        userIF = new UserIF();
-
-    // handle input file lists
-    BaselineFileName1 = BASELINE_INF1;
-    BaselineFileName2 = BASELINE_INF2;
-
-    // parse the command line input
-    if (!ParseCommandLine(argc, argv))
-        ShowUsage();    // this will Exit
-
-    SetCounterOptions( CounterForEachLanguage );
-
-// add output directory if using QTGUI
-#ifdef QTGUI
-    if (outDir != "")
-	{
-		BaselineFileName1 = outDir + BASELINE_INF1;
-		BaselineFileName2 = outDir + BASELINE_INF2;
-	}
-#endif
-    if ( HasUserCancelled() )
-        return 0;
-
-    // Enable Optimizations.  Start threads if wanted.
-    // Threads must be started (if wanted) before file Extension maps are done.
-    string	start_threads_result_msg;
-    StartThreads( start_threads_result_msg );
-    if ( start_threads_result_msg.size() )
-        userIF->updateProgress( start_threads_result_msg, false );
-
-    // generate user-defined language extension map
-    if (userExtMapFile.length() != 0)
-        ReadUserExtMapping(userExtMapFile);
-
-    if ( HasUserCancelled() )
-        return 0;
-
-    // Get file details List for DIFF use.  Only Web file source lines are in RAM buffers here.
-    if ( !ReadAllDiffFiles() ) // Set time_end_list_built & Shows 2 msgs, 1 per Baseline  Modification: 2015.12
-        return 0;
-
-    if ( HasUserCancelled() )
-        return 0;
-
-    // match files in BaselineA to BaselineB (does not include web separation files)
-    userIF->updateProgress("Performing files matching for function level differencing.........................", false);
-
-    MatchBaseLines( commonPathPrefixBoth );		// Extra info for faster Path matching
-
-    time( &time_end_match_baselines );
-
-    if ( HasUserCancelled() )
-        return 0;
-
-    userIF->updateProgress("Performing functional level differencing.......................", false);
+    userIF->updateProgress("Performing function level differencing.........................", false);
+    cout<<endl;
 
 	string fileA, fileB;
 	// Traverse the matchedFilesList and perform function level matching
@@ -516,37 +467,9 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
 		//Call function level diff for fileA and fileB
 	}
 
-
-
-    //Added for GUI output. Will remove later from this method
-
-    userIF->updateProgress("Performing files comparison.......................", false);
-    ProcessPairs();
-    userIF->updateProgress("Saving Diff results to files..................", false);
-    PrintDiffResults();
-
-
-
-
-
-    // Release Matched Files list as no longer needed
-    matchedFilesList.resize( 0 );
-
-    // Include small time to save Diff results files
-    time( &time_end_process_pairs );
-
 #ifndef QTGUI
     userIF->updateProgress("DONE");
 #endif
-
-    if ( HasUserCancelled() )
-        return 0;
-
-	UpdateCounterCounts( CounterForEachLanguage, &SourceFileA, true, true );
-	time( &time_end_process_pairs );
-
-	UpdateCounterCounts( CounterForEachLanguage, &SourceFileB, false, true );
-	time( &time_end_print_results );
 
     return 1;
 }
