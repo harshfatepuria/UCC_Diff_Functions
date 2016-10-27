@@ -9,6 +9,7 @@
 #include "DiffTool.h"
 #include "CUtil.h"
 #include "UCCFilesOut.h"     // Modification: 2015.12
+#include "boost/filesystem.hpp"
 
 using namespace std;
 
@@ -255,6 +256,7 @@ Output to files especially should be done single threaded from Main thread.
 
 	if ( HasUserCancelled() )
 		return 0;
+
 	
 	// Get file details List for DIFF use.  Only Web file source lines are in RAM buffers here.
 	// Modification: 2011.05
@@ -328,7 +330,60 @@ Output to files especially should be done single threaded from Main thread.
     //Call function level difference method //Modification: 2016.10
     if(isFuncDiff)
     {
+        userIF->updateProgress("Performing function level differencing......................", false);
+        MatchingType tempMatchedFileList = matchedFilesList;
+
+        string tempDirA = dirnameA;
+        string tempDirB = dirnameB;
+
+        //Iteration through tempMatchedFileList begins here
+        //matchedFilesList.resize( 0 );
+/*        string fileA, fileB;
+        // Traverse the matchedFilesList and perform function level matching
+        for (MatchingType::iterator myI = matchedFilesList.begin(); myI != matchedFilesList.end(); myI++)
+        {
+            if ((*myI).second.first == NULL)
+                fileA = "NA";
+            else {
+                // Do not output any embedded file names !
+                if ((*myI).second.first->second.file_name_isEmbedded)
+                    continue;
+
+                fileA = (*myI).second.first->second.file_name;
+            }
+
+            if ((*myI).second.second == NULL)
+                fileB = "NA";
+            else {
+                // Do not output any embedded file names !
+                if ((*myI).second.second->second.file_name_isEmbedded)
+                    continue;
+
+                fileB = (*myI).second.second->second.file_name;
+            }
+        }*/
+
+        boost::filesystem::create_directory(tempDirA+"/tempA");
+        boost::filesystem::create_directory(tempDirB+"/tempB");
+
+        //Create function level files
+
+        dirnameA = dirnameA+"/tempA";
+        dirnameB = dirnameB+"/tempB";
+
         funcDiffProcess();
+
+        boost::filesystem::remove_all(tempDirA+"/tempA");
+        boost::filesystem::remove_all(tempDirB+"/tempB");
+
+        dirnameA = tempDirA;
+        dirnameB = tempDirB;
+
+        //Iteration ends here
+
+#ifndef QTGUI
+        userIF->updateProgress("DONE");
+#endif
     }
 
 	// Release Matched Files list as no longer needed
@@ -435,41 +490,42 @@ Output to files especially should be done single threaded from Main thread.
 
 int DiffTool::funcDiffProcess()
 {
-    userIF->updateProgress("Performing function level differencing.........................", false);
-    cout<<endl;
+    SetCounterOptions( CounterForEachLanguage );
 
-	string fileA, fileB;
-	// Traverse the matchedFilesList and perform function level matching
-	for (MatchingType::iterator myI = matchedFilesList.begin(); myI != matchedFilesList.end(); myI++)
+#ifdef QTGUI
+    if (outDir != "")
 	{
-		if ((*myI).second.first == NULL)
-			fileA = "NA";
-		else
-		{
-			// Do not output any embedded file names !
-			if ( (*myI).second.first->second.file_name_isEmbedded )
-				continue;
-
-			fileA = (*myI).second.first->second.file_name;
-		}
-
-		if ((*myI).second.second == NULL)
-			fileB = "NA";
-		else
-		{
-			// Do not output any embedded file names !
-			if ( (*myI).second.second->second.file_name_isEmbedded )
-				continue;
-
-			fileB = (*myI).second.second->second.file_name;
-		}
-        cout<<fileA<<"\n"<<fileB<<endl;
-		//Call function level diff for fileA and fileB
+		BaselineFileName1 = outDir + BASELINE_INF1;
+		BaselineFileName2 = outDir + BASELINE_INF2;
 	}
-
-#ifndef QTGUI
-    userIF->updateProgress("DONE");
 #endif
+    if ( HasUserCancelled() )
+        return 0;
+
+    // Enable Optimizations.  Start threads if wanted.
+    // Threads must be started (if wanted) before file Extension maps are done.
+    string	start_threads_result_msg;
+    StartThreads( start_threads_result_msg );
+    if ( start_threads_result_msg.size() )
+        userIF->updateProgress( start_threads_result_msg, false );
+
+    if ( HasUserCancelled() )
+        return 0;
+
+    // Get file details List for DIFF use.  Only Web file source lines are in RAM buffers here.
+    if ( !ReadAllDiffFiles() ) // Set time_end_list_built & Shows 2 msgs, 1 per Baseline
+        return 0;
+
+    if ( HasUserCancelled() )
+        return 0;
+
+    MatchBaseLines( commonPathPrefixBoth );		// Extra info for faster Path matching
+
+    if ( HasUserCancelled() )
+        return 0;
+
+    // Read/Analyze/Count keywords for a pair of files then Diff between
+    ProcessPairs();		// Recommended to Run on worker Threads
 
     return 1;
 }
