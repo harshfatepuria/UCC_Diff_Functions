@@ -463,7 +463,7 @@ int DiffTool::funcDiffProcess()
 
 			fileB = (*myI).second.second->second.file_name;
 		}
-        cout<<fileA<<"\t"<<fileB<<endl;
+        cout<<fileA<<"\n"<<fileB<<endl;
 		//Call function level diff for fileA and fileB
 	}
 
