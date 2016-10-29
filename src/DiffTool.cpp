@@ -10,6 +10,7 @@
 #include "CUtil.h"
 #include "UCCFilesOut.h"     // Modification: 2015.12
 #include "boost/filesystem.hpp"
+#include "FunctionParser.h"
 
 using namespace std;
 
@@ -336,16 +337,17 @@ Output to files especially should be done single threaded from Main thread.
         string tempDirA = dirnameA;
         string tempDirB = dirnameB;
 
-        //Iteration through tempMatchedFileList begins here
-        //matchedFilesList.resize( 0 );
-/*        string fileA, fileB;
+        string fileA, fileB;
+
         // Traverse the matchedFilesList and perform function level matching
-        for (MatchingType::iterator myI = matchedFilesList.begin(); myI != matchedFilesList.end(); myI++)
+        for (MatchingType::iterator myI = tempMatchedFileList.begin(); myI != tempMatchedFileList.end(); myI++)
         {
             if ((*myI).second.first == NULL)
+            {
                 fileA = "NA";
+                continue; //for now. Has to be removed.
+            }
             else {
-                // Do not output any embedded file names !
                 if ((*myI).second.first->second.file_name_isEmbedded)
                     continue;
 
@@ -353,33 +355,32 @@ Output to files especially should be done single threaded from Main thread.
             }
 
             if ((*myI).second.second == NULL)
+            {
                 fileB = "NA";
+                continue; //for now. Has to be removed.
+            }
             else {
-                // Do not output any embedded file names !
                 if ((*myI).second.second->second.file_name_isEmbedded)
                     continue;
 
                 fileB = (*myI).second.second->second.file_name;
             }
-        }*/
+            boost::filesystem::create_directory(tempDirA+"/tempA");
+            boost::filesystem::create_directory(tempDirB+"/tempB");
+            pythonParser(fileA,tempDirA+"/tempA");
+            pythonParser(fileB,tempDirB+"/tempB");
 
-        boost::filesystem::create_directory(tempDirA+"/tempA");
-        boost::filesystem::create_directory(tempDirB+"/tempB");
+            dirnameA = dirnameA+"/tempA";
+            dirnameB = dirnameB+"/tempB";
 
-        //Create function level files
+            funcDiffProcess();
 
-        dirnameA = dirnameA+"/tempA";
-        dirnameB = dirnameB+"/tempB";
+            boost::filesystem::remove_all(tempDirA+"/tempA");
+            boost::filesystem::remove_all(tempDirB+"/tempB");
 
-        funcDiffProcess();
-
-        boost::filesystem::remove_all(tempDirA+"/tempA");
-        boost::filesystem::remove_all(tempDirB+"/tempB");
-
-        dirnameA = tempDirA;
-        dirnameB = tempDirB;
-
-        //Iteration ends here
+            dirnameA = tempDirA;
+            dirnameB = tempDirB;
+        }
 
 #ifndef QTGUI
         userIF->updateProgress("DONE");

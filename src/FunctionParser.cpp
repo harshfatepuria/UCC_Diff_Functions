@@ -1,13 +1,32 @@
+//! FunctionParser class
+/*!
+* \file FunctionParser.cpp
+*
+* This file contains the function parsing class methods.
+*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <set>
 #include <map>
 #include <vector>
+
 using namespace std;
 
 
-string trim(string& str)
+/*
+* 1. Function Description: 
+*    Trim white spaces in any given string
+*    Return the trimmed string
+*
+* 2. Parameters: 
+*    str： string to be trimmed
+*
+* 3. Creation Time and Owner: 
+*	 Version 2016.10
+*/
+string FunctionParser::trim(string& str)
 {
     size_t first = str.find_first_not_of(' ');
     size_t last = str.find_last_not_of(' ');
@@ -23,12 +42,35 @@ string trim(string& str)
     	return str.substr(first, (last-first+1));
 }
 
-int numberOfSpacesAtBeginning(string& str)
+
+/*
+* 1. Function Description: 
+*    Calculate number of white spaces in the start of a string
+*
+* 2. Parameters: 
+*    str： string
+*
+* 3. Creation Time and Owner: 
+*	 Version 2016.10
+*/
+int FunctionParser::numberOfSpacesAtBeginning(string& str)
 {
 	return str.find_first_not_of(' ');
 }
 
-void pythonParser(string filePath)
+
+/*
+* 1. Function Description: 
+*    Parse the methods in a given python source code file and store them in different files
+*
+* 2. Parameters: 
+*    filePath:  path of python source code
+*	 dirName:	directory where the output files are to be stored
+*
+* 3. Creation Time and Owner: 
+*	 Version 2016.10
+*/
+void FunctionParser::pythonParser(string filePath, string dirName)
 {
 		set<string> functions; //set storing unique method names
 		map<int, string> fileMap; //map storing all lines of code against lineNumber
@@ -57,26 +99,6 @@ void pythonParser(string filePath)
 	  	//iterating through the fileMap to identify methods in the python code
 	  	if (fileMap.size()>0)
 	  	{
-	  		//find comments
-	  	// 	for (map<int, string>::iterator it = fileMap.begin(); it != fileMap.end();) 
-	  	// 	{
-	  	// 		string lineOfCode = it->second;
-	  	// 	    string temp = trim(lineOfCode);
-	  	// 	    if ((temp.substr(0,1)).compare("#")==0)
-				// {
-				// 	lineNumberOfComments.push_back(it->first);
-				// 	it++;
-				// 	continue;
-				// }
-				// else if(temp.substr(0,3)).compare("'''")==0)
-				// {
-				// 	it++;
-				// 	continue;
-				// }
-				// it++;
-	  	// 	}
-
-
 	  		for (map<int, string>::iterator it = fileMap.begin(); it != fileMap.end(); ++it) 
 	  		{
 	  		    string lineOfCode = it->second;
@@ -95,7 +117,7 @@ void pythonParser(string filePath)
 	  	    			functions.insert(function_name);
 
 	  	    			ofstream newMethodFile;
-  						newMethodFile.open (function_name+".py");
+  						newMethodFile.open (dirName+"/"+function_name+".py");
   						newMethodFile << lineOfCode << endl;
 
 
@@ -119,7 +141,7 @@ void pythonParser(string filePath)
 	  		methodCount=functions.size();
 	  		if (methodCount>0)
 	  		{
-	  				cout<<methodCount<<" methods identified"<<endl;
+	  				cout<<endl<<endl<<methodCount<<" methods identified:"<<endl;
 
 	  				int ii=1;
 	  			    for (set<string>::iterator it=functions.begin(); it!=functions.end(); ++it)
@@ -129,10 +151,4 @@ void pythonParser(string filePath)
 	  			    }
 	  		}
 	  	}
-}
-
-int main()
-{
-	pythonParser("reddit_mining.py");
-	return 0;
 }
