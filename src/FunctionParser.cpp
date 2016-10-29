@@ -11,10 +11,12 @@
 #include <set>
 #include <map>
 #include <vector>
+#include "FunctionParser.h"
 
 using namespace std;
 
-
+FunctionParser::FunctionParser() {}
+FunctionParser::~FunctionParser() {}
 /*
 * 1. Function Description: 
 *    Trim white spaces in any given string
@@ -94,7 +96,7 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  	  myfile.close();
 	  	}
 	  	else 
-	  		cout << "Unable to open file"; 
+	  		cout << "Unable to open file" <<endl;
 
 	  	//iterating through the fileMap to identify methods in the python code
 	  	if (fileMap.size()>0)

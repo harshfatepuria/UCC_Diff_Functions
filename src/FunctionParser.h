@@ -1,5 +1,14 @@
+//! FunctionParser class
+/*!
+* \file FunctionParser.h
+*
+* This file contains the function parsing class methods definition.
+*/
+
 #ifndef FUNCTIONPARSER_H
 #define FUNCTIONPARSER_H
+
+using namespace std;
 
 class FunctionParser
 {

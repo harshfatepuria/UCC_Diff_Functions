@@ -365,10 +365,13 @@ Output to files especially should be done single threaded from Main thread.
 
                 fileB = (*myI).second.second->second.file_name;
             }
+
             boost::filesystem::create_directory(tempDirA+"/tempA");
             boost::filesystem::create_directory(tempDirB+"/tempB");
-            pythonParser(fileA,tempDirA+"/tempA");
-            pythonParser(fileB,tempDirB+"/tempB");
+
+            FunctionParser functionParser;
+            functionParser.pythonParser(fileA,tempDirA+"/tempA");
+            functionParser.pythonParser(fileB,tempDirB+"/tempB");
 
             dirnameA = dirnameA+"/tempA";
             dirnameB = dirnameB+"/tempB";
@@ -527,6 +530,8 @@ int DiffTool::funcDiffProcess()
 
     // Read/Analyze/Count keywords for a pair of files then Diff between
     ProcessPairs();		// Recommended to Run on worker Threads
+
+    PrintDiffResults();
 
     return 1;
 }
