@@ -854,7 +854,7 @@ int MainObject::ParseCommandLine(int argc, char *argv[])
 		}
 		else if( arg == "-funcDiff" )
 		{
-			printf("************* Function level differencing enabled *************\n");
+			//Ignore
 		}
 		else
 		{
@@ -1844,6 +1844,8 @@ int MainObject::ReadAllFiles(StringVector &inputFileVector, string const &inputF
 
 	if ( isDiff )
 	{
+		if(!doFuncDiff)
+		{
 		if ( useListA )
 		{
 		#ifdef	QTGUI
@@ -1860,6 +1862,7 @@ int MainObject::ReadAllFiles(StringVector &inputFileVector, string const &inputF
 			cout << "Get baseline B information about source files.....";
 		#endif
 		}
+        }
 	}
 	else
 	{
@@ -1982,7 +1985,7 @@ int MainObject::ReadAllFiles(StringVector &inputFileVector, string const &inputF
 #else
 	// Just erase the last 10 characters
 	cout << "\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b";
-	cout << "\b\b\b\bDONE\n";		// And to adjust for not using calls to update progress
+    if(!doFuncDiff)cout << "\b\b\b\bDONE\n";		// And to adjust for not using calls to update progress
 #endif
 
 	if ( workThreadsCount >= MIN_UCC_THREAD_COUNT )
@@ -2385,7 +2388,7 @@ void MainObject::FindDuplicateFiles(SourceFileList * pFileList, StringVector * d
 #ifndef	QTGUI
 	cout << "\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b" << flush;
 #endif
-	userIF->updateProgress("\b\b\b\bDONE");
+	if(!doFuncDiff)userIF->updateProgress("\b\b\b\bDONE");
 
 
 	if ( workThreadsCount >= MIN_UCC_THREAD_COUNT )

@@ -80,6 +80,7 @@ DiffTool::DiffTool()
 {
 	// this is the summary count information
 	isDiff = true;
+    doFuncDiff = false;
 	// Modification: 2007.07
 	total_addedLines = total_deletedLines = total_modifiedLines = total_unmodifiedLines = 0;
 	dup_addedLines = dup_deletedLines = dup_modifiedLines = dup_unmodifiedLines = 0;
@@ -325,13 +326,13 @@ Output to files especially should be done single threaded from Main thread.
 
     // Modification: 2016.10
 #ifndef QTGUI
-    userIF->updateProgress("DONE");         // Modification: 2016.10
+    if(!doFuncDiff)userIF->updateProgress("DONE");         // Modification: 2016.10
 #endif
 
     //Call function level difference method //Modification: 2016.10
     if(isFuncDiff)
     {
-        userIF->updateProgress("Performing function level differencing......................", false);
+        userIF->updateProgress("Performing function level differencing........", false);
         MatchingType tempMatchedFileList = matchedFilesList;
 
         string tempDirA = dirnameA;
@@ -342,6 +343,7 @@ Output to files especially should be done single threaded from Main thread.
         // Traverse the matchedFilesList and perform function level matching
         for (MatchingType::iterator myI = tempMatchedFileList.begin(); myI != tempMatchedFileList.end(); myI++)
         {
+            matchedFilesList.resize( 0 );
             if ((*myI).second.first == NULL)
             {
                 fileA = "NA";
@@ -376,6 +378,8 @@ Output to files especially should be done single threaded from Main thread.
             dirnameA = dirnameA+"/tempA";
             dirnameB = dirnameB+"/tempB";
 
+            doFuncDiff = true;
+
             funcDiffProcess();
 
             boost::filesystem::remove_all(tempDirA+"/tempA");
@@ -404,6 +408,7 @@ Output to files especially should be done single threaded from Main thread.
 		time( &time_end_process_pairs );    // Modification: 2015.12
 
 		// This will show % done
+        if(!doFuncDiff)
 		userIF->updateProgress("Looking for duplicate files in Baseline-A ........", false);
 		FindDuplicateFiles( &SourceFileA, &duplicateFilesInA1, &duplicateFilesInA2, true, true );    // Modification: 2011.05
 
@@ -448,6 +453,7 @@ Output to files especially should be done single threaded from Main thread.
 		time( &time_end_print_results );    // Modification: 2015.12
 
 		// This will show % done
+        if(!doFuncDiff)
 		userIF->updateProgress("Looking for duplicate files in Baseline-B ........", false);
 		FindDuplicateFiles( &SourceFileB, &duplicateFilesInB1, &duplicateFilesInB2, true, false );    // Modification: 2011.05
 
@@ -492,6 +498,10 @@ Output to files especially should be done single threaded from Main thread.
 	return 1;
 }
 
+
+/*
+ * Perform function level differencing
+ */
 int DiffTool::funcDiffProcess()
 {
     SetCounterOptions( CounterForEachLanguage );
@@ -558,7 +568,8 @@ int DiffTool::ReadAllDiffFiles()
 	int		retVal = 1;						// Modified: 2015.12
 
 	// Make a list of input source files
-	userIF->updateProgress( "Building list of source files...\n", false );    // Modified: 2015.12
+	if(!doFuncDiff) //Modified: 2016.10
+        userIF->updateProgress( "Building list of source files...\n", false );    // Modified: 2015.12
 
 	// flag to indicate if the files are to be read from fileList<A|B>.txt
 	// or from the parameters mentioned at command line
@@ -1231,7 +1242,7 @@ void DiffTool::MatchBaseLines( const string commonPathBetweenBaselines, const bo
 #else
 	// Just erase the last 10 characters
 	cout << "\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b";
-	cout << "\b\b\b\bDONE\n";		// And to adjust for not using calls to update progress
+	if(!doFuncDiff)cout << "\b\b\b\bDONE\n";		// And to adjust for not using calls to update progress
 #endif
 }
 
@@ -1510,7 +1521,7 @@ void DiffTool::ProcessPairs()
 #else
 	// Just erase the last 10 characters
 	cout << "\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b";
-	cout << "\b\b\b\bDONE\n";		// And to adjust for not using calls to update progress
+    if(!doFuncDiff)cout << "\b\b\b\bDONE\n";		// And to adjust for not using calls to update progress
 #endif
 
 #ifdef	ENABLE_THREADS
