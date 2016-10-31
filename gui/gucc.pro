@@ -23,7 +23,7 @@ CONFIG	+= qt warn_on debug_and_release no_batch
 # Modification: 2016.01; USC
 # Fixed mingw 4.9.1 compilation errors
 CONFIG  += c++11
-
+INCLUDEPATH += /usr/local//Cellar/boost/1.62.0/include/
 TEMPLATE	= app
 LANGUAGE	= C++
 
@@ -89,7 +89,8 @@ HEADERS += \
 	../src/CCobolCounter.h \
         ../src/UCCAfterLibraryIncludes.h \
         ../src/UCCBeforeLibraryIncludes.h \
-        UCCWorker.h
+        ../src/FunctionParser.h \
+        UCCWorker.h \
 
 SOURCES += \
 	GAsciiDialog.cpp \
@@ -148,9 +149,11 @@ SOURCES += \
 	../src/LangUtils.cpp \
 	../src/CScalaCounter.cpp \
 	../src/CCobolCounter.cpp \
-	../src/main.cpp \
+        ../src/main.cpp \
+        ../src/FunctionParser.cpp \
         Qt_main.cpp \
-        UCCWorker.cpp
+        UCCWorker.cpp \
+
 
 FORMS += \
 	GAsciiDialog.ui \
