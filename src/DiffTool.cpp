@@ -368,12 +368,36 @@ Output to files especially should be done single threaded from Main thread.
                 fileB = (*myI).second.second->second.file_name;
             }
 
-            boost::filesystem::create_directory(tempDirA+"/tempA");
-            boost::filesystem::create_directory(tempDirB+"/tempB");
+            string tempPathA=tempDirA+"/tempA";
+            string tempPathB=tempDirB+"/tempB";
+/*
+            boost::filesystem::create_directory(tempPathA);
+            boost::filesystem::create_directory(tempPathB);
+*/
+
+            if (CUtil::MkPath(tempPathA) == 0)
+            {
+                string err = "Unable to create temporary output directory (";
+                err += tempPathA;
+                err += ")";
+                userIF->SetErrorFile("");
+                userIF->AddError(err);
+                return 0;
+            }
+
+            if (CUtil::MkPath(tempPathB) == 0)
+            {
+                string err = "Unable to create temporary output directory (";
+                err += tempPathB;
+                err += ")";
+                userIF->SetErrorFile("");
+                userIF->AddError(err);
+                return 0;
+            }
 
             FunctionParser functionParser;
-            functionParser.pythonParser(fileA,tempDirA+"/tempA");
-            functionParser.pythonParser(fileB,tempDirB+"/tempB");
+            functionParser.pythonParser(fileA,tempPathA);
+            functionParser.pythonParser(fileB,tempPathB);
 
             dirnameA = dirnameA+"/tempA";
             dirnameB = dirnameB+"/tempB";
@@ -382,8 +406,8 @@ Output to files especially should be done single threaded from Main thread.
 
             funcDiffProcess();
 
-            boost::filesystem::remove_all(tempDirA+"/tempA");
-            boost::filesystem::remove_all(tempDirB+"/tempB");
+            boost::filesystem::remove_all(tempPathA);
+            boost::filesystem::remove_all(tempPathB);
 
             dirnameA = tempDirA;
             dirnameB = tempDirB;
