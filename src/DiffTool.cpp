@@ -9,7 +9,6 @@
 #include "DiffTool.h"
 #include "CUtil.h"
 #include "UCCFilesOut.h"     // Modification: 2015.12
-#include "boost/filesystem.hpp"
 #include "FunctionParser.h"
 
 using namespace std;
@@ -404,8 +403,8 @@ Output to files especially should be done single threaded from Main thread.
 
             funcDiffProcess();
 
-            boost::filesystem::remove_all(tempPathA);
-            boost::filesystem::remove_all(tempPathB);
+            CUtil::RmPath(tempPathA);
+            CUtil::RmPath(tempPathB);
 
             dirnameA = tempDirA;
             dirnameB = tempDirB;

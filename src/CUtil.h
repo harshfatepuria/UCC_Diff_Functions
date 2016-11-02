@@ -131,6 +131,7 @@ public:
     static bool GetFileList(StringVector &fileList, const string &path, bool symLinks);
     static bool MatchFilename(const string &filename, const string &matchStr);
     static int MkPath(const string &path);
+	static int RmPath(const string &path);
     static string ConvertClearCaseFile( const string &fileName, string & clearCaseTrailer );
     static size_t TruncateLine(size_t length, size_t totalLength, size_t truncate, bool &trunc_flag);
     static string ClearRedundantSpaces(const string &str);

@@ -14,6 +14,8 @@
 #include <iomanip>   // Modification: 2015.12
 #include <sstream>   // Modification: 2009.01
 #include <string>    // Modification: 2015.12
+#include <dirent.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -1474,6 +1476,87 @@ int CUtil::MkPath(const string &path)
     return 1;
 }
 
+
+/*!
+* 1. Function Description:
+*    For a given path, this method delete all directory and its content.
+*    Return file status
+*
+* 2. Parameters:
+*    path: path to delete
+*
+* 3. Creation time and Owner:
+*    Version 2016.10
+*/
+int CUtil::RmPath(const string &path)
+{
+    size_t i = 1;
+    string tpath;
+#ifdef UNIX
+    DIR *d = opendir(path.c_str());
+   size_t path_len = strlen(path.c_str());
+   int r = -1;
+   if (d)
+   {
+    struct dirent *p;
+    r = 0;
+    while (!r && (p=readdir(d)))
+    {
+     int r2 = -1;
+     char *buf;
+     size_t len;
+     /* Skip the names "." and ".." as we don't want to recurse on them. */
+     if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+      continue;
+     len = path_len + strlen(p->d_name) + 2;
+     buf = (char *) malloc(len);
+     snprintf(buf, len, "%s/%s", path.c_str(), p->d_name);
+     if (buf)
+     {
+        r2 = unlink(buf);
+        free(buf);
+     }
+     r = r2;
+    }
+    closedir(d);
+   }
+   if (!r)
+    r = rmdir(path.c_str());
+   return r;
+#else
+    DIR *d = opendir(path.c_str());
+    size_t path_len = strlen(path.c_str());
+    int r = -1;
+    if (d)
+    {
+        struct dirent *p;
+        r = 0;
+        while (!r && (p=readdir(d)))
+        {
+            int r2 = -1;
+            char *buf;
+            size_t len;
+            /* Skip the names "." and ".." as we don't want to recurse on them. */
+            if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+                continue;
+            len = path_len + strlen(p->d_name) + 2;
+            buf = (char *) malloc(len);
+            snprintf(buf, len, "%s/%s", path.c_str(), p->d_name);
+            if (buf)
+            {
+                r2 = _unlink(buf);
+                free(buf);
+            }
+            r = r2;
+        }
+        closedir(d);
+    }
+    if (!r)
+        r = _rmdir(path.c_str());
+    return r;
+#endif
+    return 1;
+}
 
 /*!
 * 1. Function Description:
