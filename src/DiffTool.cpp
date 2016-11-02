@@ -562,7 +562,7 @@ int DiffTool::funcDiffProcess()
     // Read/Analyze/Count keywords for a pair of files then Diff between
     ProcessPairs();		// Recommended to Run on worker Threads
 
-    PrintDiffResults();
+    PrintFuncDiffResults();
 
     return 1;
 }
@@ -2248,6 +2248,577 @@ void DiffTool::PrintDiffResults()
         
         CmpMngrHtml(infile_file_dump, html_diff_stream).PrintFileSetAsHtml();
         
+        infile_file_dump.close();
+        html_diff_stream.close();
+    }
+}
+
+/*!
+* 1. Function Description:
+*    Prints the results of the file differencing.
+*
+* 2. Parameters:
+*
+* 3. Creation Time and Owner:
+*	 Version 2011.05
+*/
+void DiffTool::PrintFuncDiffResults()
+{
+    // open the diff results output file
+    //ASCII format
+    // Modification: 2011.05
+    if (print_ascii || print_legacy)
+    {
+        string fName = outDir + FUNC_DIFF_OUTFILE;
+        outfile_diff_results.open(fName.c_str(), ofstream::out);
+        //File open failed
+        if (!outfile_diff_results.is_open())
+        {
+            string err = "Error: Failed to open diff results output file (";
+            err += FUNC_DIFF_OUTFILE;
+            err += ")";
+            // Modification: 2013.04
+            userIF->AddError(err);
+            return;
+        }
+        //Open file for print duplicates
+        // Modification: 2011.05
+        if (printDup)
+        {
+            fName = outDir + "Duplicates-";
+            fName += FUNC_DIFF_OUTFILE;
+            dup_outfile_diff_results.open(fName.c_str(), ofstream::out);
+            //File open failed
+            if (!dup_outfile_diff_results.is_open())
+            {
+                string err = "Error: Failed to open duplicates diff results output file (";
+                err += fName;
+                err += ")";
+                // Modification: 2013.04
+                userIF->AddError(err);
+                return;
+            }
+        }
+    }
+    //CSV format
+    // Modification: 2011.05
+    if (print_csv)
+    {
+        string fName = outDir + FUNC_DIFF_OUTFILE_CSV;
+        outfile_diff_csv.open(fName.c_str(), ofstream::out);
+        //File open failed
+        if (!outfile_diff_csv.is_open())
+        {
+            string err = "Error: Failed to open diff results output file (";
+            err += FUNC_DIFF_OUTFILE_CSV;
+            err += ")";
+            // Modification: 2013.04
+            userIF->AddError(err);
+            return;
+        }
+        //Open file for print duplicates
+        // Modification: 2011.05
+        if (printDup)
+        {
+            fName = outDir + "Duplicates-";
+            fName += FUNC_DIFF_OUTFILE_CSV;
+            dup_outfile_diff_csv.open(fName.c_str(), ofstream::out);
+            //File open failed
+            if (!dup_outfile_diff_csv.is_open())
+            {
+                string err = "Error: Failed to open duplicates diff results output file (";
+                err += fName;
+                err += ")";
+                // Modification: 2013.04
+                userIF->AddError(err);
+                return;
+            }
+        }
+    }
+
+    // print the diff results header.
+    // Modification: 2011.05
+    string myCats[] = {"New", "Deleted", "Modified", "Unmodified", "Module"};
+    int i, y, numCats = 5;
+
+    //ASCII format header
+    if (print_ascii || print_legacy)
+    {
+        // Modification: 2011.10
+        PrintFileHeader(outfile_diff_results, "SOURCE CODE DIFFERENTIAL RESULTS", cmdLine);
+        //Print the title of each column
+        for (i = 0; i < numCats; i++)
+        {
+            outfile_diff_results.setf(ofstream::left);
+            outfile_diff_results.width(15);
+            outfile_diff_results << myCats[i];
+            outfile_diff_results.unsetf(ofstream::left);
+            if (i + 1 < numCats)
+            {
+                outfile_diff_results.width(3);
+                outfile_diff_results << " | ";
+            }
+        }
+        outfile_diff_results << endl;
+        for (i = 0; i < numCats - 1; i++)
+        {
+            outfile_diff_results.setf(ofstream::left);
+            outfile_diff_results.width(15);
+            outfile_diff_results << "Lines";
+            outfile_diff_results.unsetf(ofstream::left);
+            outfile_diff_results.width(3);
+            outfile_diff_results << " | ";
+        }
+        outfile_diff_results.setf(ofstream::left);
+        outfile_diff_results.width(15);
+        outfile_diff_results << "Name";
+        outfile_diff_results.unsetf(ofstream::left);
+        outfile_diff_results << endl;
+        for (y = 0; y < 120; y++)
+            outfile_diff_results << BAR_S;
+        outfile_diff_results << endl;
+
+
+        //Print the header duplicates
+        if (printDup)
+        {
+            // Modification: 2011.10
+            PrintFileHeader(dup_outfile_diff_results, "SOURCE CODE DIFFERENTIAL RESULTS", cmdLine);
+            // Modification: 2011.05
+            for (i = 0; i < numCats; i++)
+            {
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << myCats[i];
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                if (i + 1 < numCats)
+                {
+                    dup_outfile_diff_results.width(3);
+                    dup_outfile_diff_results << " | ";
+                }
+            }
+            dup_outfile_diff_results << endl;
+            for (i = 0; i < numCats - 1; i++)
+            {
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << "Lines";
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                dup_outfile_diff_results.width(3);
+                dup_outfile_diff_results << " | ";
+            }
+            dup_outfile_diff_results.setf(ofstream::left);
+            dup_outfile_diff_results.width(15);
+            dup_outfile_diff_results << "Name";
+            dup_outfile_diff_results.unsetf(ofstream::left);
+            dup_outfile_diff_results << endl;
+            for (y = 0; y < 120; y++)
+                dup_outfile_diff_results << BAR_S;
+            dup_outfile_diff_results << endl;
+        }
+    }
+
+    // CVS format
+    if (print_csv)
+    {
+        // Modification: 2011.10
+        PrintFileHeader(outfile_diff_csv, "SOURCE CODE DIFFERENTIAL RESULTS", cmdLine);
+        // Modification: 2011.05
+        outfile_diff_csv << "New Lines,Deleted Lines,Modified Lines,Unmodified Lines,Modification Type,Language,Module A,Module B" << endl;
+        if (printDup)
+        {
+            // Modification: 2011.10
+            PrintFileHeader(dup_outfile_diff_csv, "SOURCE CODE DIFFERENTIAL RESULTS", cmdLine);
+            // Modification: 2011.05
+            dup_outfile_diff_csv << "New Lines,Deleted Lines,Modified Lines,Unmodified Lines,Modification Type,Language,Module A,Module B" << endl;
+        }
+    }
+
+    // print pair results
+    resultStruct *myResults;
+    string filenameA, filenameB, lang, modType;
+    bool unmatchedDup;
+    lang = DEF_LANG_NAME;
+    //Iterate the matchedFileList
+    for (MatchingType::iterator myI = matchedFilesList.begin(); myI != matchedFilesList.end(); myI++)
+    {
+        // select the filename, choose the baselineA unless this one was only in baselineB
+        filenameA = ((*myI).second.first != NULL) ? (*myI).second.first->second.file_name : "NA";
+        filenameB = ((*myI).second.second != NULL) ? (*myI).second.second->second.file_name : "NA";
+
+        if (((*myI).first.addedLines == 0 && (*myI).first.deletedLines == 0 &&
+             (*myI).first.modifiedLines == 0 && (*myI).first.unmodifiedLines == 0) ||
+            filenameA.find(EMBEDDED_FILE_PREFIX) != string::npos ||
+            filenameB.find(EMBEDDED_FILE_PREFIX) != string::npos)
+        {
+            // do not print out if the file is empty or file not supported
+            // only print file if it is the actual file (not having *.* in the filename)
+            continue;
+        }
+        else
+        {
+            if ((*myI).second.first != NULL)
+                lang = GetLanguageName( CounterForEachLanguage, (*myI).second.first->second.class_type, (*myI).second.first->second.file_name );      // Modification: 2015.12
+            else
+                lang = GetLanguageName( CounterForEachLanguage, (*myI).second.second->second.class_type, (*myI).second.second->second.file_name );    // Modification: 2015.12
+        }
+
+        unmatchedDup = false;
+        if ((*myI).second.first != NULL)
+        {
+            if ((*myI).second.first->second.duplicate || (*myI).second.first->second.firstDuplicate)
+                unmatchedDup = true;
+        }
+        if ((*myI).second.second != NULL)
+        {
+            if ((*myI).second.second->second.duplicate || (*myI).second.second->second.firstDuplicate)
+            {
+                if ((*myI).second.first == NULL)
+                    unmatchedDup = true;
+                else
+                    unmatchedDup = false;
+            }
+            else
+                unmatchedDup = false;
+        }
+
+        // print pair results
+        myResults = &((*myI).first);
+        // No duplicate
+        if (!unmatchedDup)
+        {
+            if (print_ascii || print_legacy)
+            {
+                outfile_diff_results.setf(ofstream::left);
+                outfile_diff_results.width(15);
+                outfile_diff_results << myResults->addedLines;
+
+                outfile_diff_results.unsetf(ofstream::left);
+                outfile_diff_results.width(3);
+                outfile_diff_results << "| ";
+                outfile_diff_results.setf(ofstream::left);
+                outfile_diff_results.width(15);
+                outfile_diff_results << myResults->deletedLines;	// modified from addedLines
+
+                outfile_diff_results.unsetf(ofstream::left);
+                outfile_diff_results.width(3);
+                outfile_diff_results << "| ";
+                outfile_diff_results.setf(ofstream::left);
+                outfile_diff_results.width(15);
+                outfile_diff_results << myResults->modifiedLines;
+
+                outfile_diff_results.unsetf(ofstream::left);
+                outfile_diff_results.width(3);
+                outfile_diff_results << "| ";
+                outfile_diff_results.setf(ofstream::left);
+                outfile_diff_results.width(15);
+                outfile_diff_results << myResults->unmodifiedLines;
+
+                outfile_diff_results.unsetf(ofstream::left);
+                outfile_diff_results.width(3);
+                outfile_diff_results << "| ";
+                outfile_diff_results.setf(ofstream::left);
+                outfile_diff_results.width(15);
+
+                outfile_diff_results.setf(ofstream::left);
+                outfile_diff_results.width(15);
+                if (filenameB.compare("NA") != 0)
+                    outfile_diff_results << filenameB;
+                else
+                    outfile_diff_results << filenameA;
+
+                outfile_diff_results.unsetf(ofstream::left);
+                outfile_diff_results << endl;
+            }
+            if (print_csv)
+            {
+                outfile_diff_csv << myResults->addedLines;
+                outfile_diff_csv << "," << myResults->deletedLines;
+                outfile_diff_csv << "," << myResults->modifiedLines;
+                outfile_diff_csv << "," << myResults->unmodifiedLines;
+
+                if (myResults->deletedLines == 0 && myResults->unmodifiedLines == 0 && myResults->modifiedLines == 0)
+                    modType = "Add";
+                else if (myResults->addedLines == 0 && myResults->unmodifiedLines == 0 && myResults->modifiedLines == 0)
+                    modType = "Del";
+                else if (myResults->addedLines == 0 && myResults->deletedLines == 0 && myResults->modifiedLines == 0)
+                    modType = "Unmod";
+                else
+                    modType = "Mod";
+
+                outfile_diff_csv << "," << modType;
+                outfile_diff_csv << ",\"" << lang << "\"";
+                outfile_diff_csv << ",\"" + filenameA + "\",\"" + filenameB + "\"";
+                outfile_diff_csv << endl;
+            }
+        }
+        else //With duplicate
+        {
+            if (print_ascii || print_legacy) //ASCII format
+            {
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << myResults->addedLines;
+
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                dup_outfile_diff_results.width(3);
+                dup_outfile_diff_results << "| ";
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << myResults->deletedLines;	// modified from addedLines
+
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                dup_outfile_diff_results.width(3);
+                dup_outfile_diff_results << "| ";
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << myResults->modifiedLines;
+
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                dup_outfile_diff_results.width(3);
+                dup_outfile_diff_results << "| ";
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << myResults->unmodifiedLines;
+
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                dup_outfile_diff_results.width(3);
+                dup_outfile_diff_results << "| ";
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                if (filenameB.compare("NA") != 0)
+                    dup_outfile_diff_results << filenameB;
+                else
+                    dup_outfile_diff_results << filenameA;
+
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                dup_outfile_diff_results << endl;
+            }
+            // CSV format
+            if (print_csv)
+            {
+                dup_outfile_diff_csv << myResults->addedLines;
+                dup_outfile_diff_csv << "," << myResults->deletedLines;
+                dup_outfile_diff_csv << "," << myResults->modifiedLines;
+                dup_outfile_diff_csv << "," << myResults->unmodifiedLines;
+
+                if (myResults->deletedLines == 0 && myResults->unmodifiedLines == 0 && myResults->modifiedLines == 0)
+                    modType = "Add";
+                else if (myResults->addedLines == 0 && myResults->unmodifiedLines == 0 && myResults->modifiedLines == 0)
+                    modType = "Del";
+                else if (myResults->addedLines == 0 && myResults->deletedLines == 0 && myResults->modifiedLines == 0)
+                    modType = "Unmod";
+                else
+                    modType = "Mod";
+
+                dup_outfile_diff_csv << "," << modType;
+                dup_outfile_diff_csv << ",\"" << lang << "\"";
+                dup_outfile_diff_csv << ",\"" + filenameA + "\",\"" + filenameB + "\"";
+                dup_outfile_diff_csv << endl;
+            }
+        }
+    }
+
+    // print the diff results summary
+    int ti;
+    numCats--;
+    // ASCII format
+    if (print_ascii || print_legacy)
+    {
+        outfile_diff_results << endl << endl;
+        for (ti = 0; ti < numCats; ti++)
+        {
+            outfile_diff_results.setf(ofstream::left);
+            outfile_diff_results.width(15);
+            outfile_diff_results << "Total";
+            outfile_diff_results.unsetf(ofstream::left);
+            if (ti + 1 < numCats)
+            {
+                outfile_diff_results.width(3);
+                outfile_diff_results << "| ";
+            }
+        }
+        outfile_diff_results << endl;
+        for (ti = 0; ti < numCats; ti++)
+        {
+            outfile_diff_results.setf(ofstream::left);
+            outfile_diff_results.width(15);
+            outfile_diff_results << myCats[ti];
+            outfile_diff_results.unsetf(ofstream::left);
+            if (ti + 1 < numCats)
+            {
+                outfile_diff_results.width(3);
+                outfile_diff_results << "| ";
+            }
+        }
+        outfile_diff_results << endl;
+        for (ti = 0; ti < numCats; ti++)
+        {
+            outfile_diff_results.setf(ofstream::left);
+            outfile_diff_results.width(15);
+            outfile_diff_results << "Lines";
+            outfile_diff_results.unsetf(ofstream::left);
+            if (ti + 1 < numCats)
+            {
+                outfile_diff_results.width(3);
+                outfile_diff_results << "| ";
+            }
+        }
+        outfile_diff_results << endl;
+        for (y = 0; y < 73; y++)
+            outfile_diff_results << BAR_S;
+        outfile_diff_results << endl;
+
+        outfile_diff_results.setf(ofstream::left);
+        outfile_diff_results.width(15);
+        outfile_diff_results << total_addedLines;
+
+        outfile_diff_results.unsetf(ofstream::left);
+        outfile_diff_results.width(3);
+        outfile_diff_results << "| ";
+        outfile_diff_results.setf(ofstream::left);
+        outfile_diff_results.width(15);
+        outfile_diff_results << total_deletedLines;
+
+        outfile_diff_results.unsetf(ofstream::left);
+        outfile_diff_results.width(3);
+        outfile_diff_results << "| ";
+        outfile_diff_results.setf(ofstream::left);
+        outfile_diff_results.width(15);
+        outfile_diff_results << total_modifiedLines;
+
+        outfile_diff_results.unsetf(ofstream::left);
+        outfile_diff_results.width(3);
+        outfile_diff_results << "| ";
+        outfile_diff_results.setf(ofstream::left);
+        outfile_diff_results.width(15);
+        outfile_diff_results << total_unmodifiedLines;
+
+        outfile_diff_results << endl << endl;
+
+        // Print duplicates
+        if (printDup)
+        {
+            dup_outfile_diff_results << endl << endl;
+            for (ti = 0; ti < numCats; ti++)
+            {
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << "Total";
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                if (ti + 1 < numCats)
+                {
+                    dup_outfile_diff_results.width(3);
+                    dup_outfile_diff_results << "| ";
+                }
+            }
+            dup_outfile_diff_results << endl;
+            for (ti = 0; ti < numCats; ti++)
+            {
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << myCats[ti];
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                if ((ti + 1) < numCats)
+                {
+                    dup_outfile_diff_results.width(3);
+                    dup_outfile_diff_results << "| ";
+                }
+            }
+            dup_outfile_diff_results << endl;
+            for (ti = 0; ti < numCats; ti++)
+            {
+                dup_outfile_diff_results.setf(ofstream::left);
+                dup_outfile_diff_results.width(15);
+                dup_outfile_diff_results << "Lines";
+                dup_outfile_diff_results.unsetf(ofstream::left);
+                if (ti + 1 < numCats)
+                {
+                    dup_outfile_diff_results.width(3);
+                    dup_outfile_diff_results << "| ";
+                }
+            }
+            dup_outfile_diff_results << endl;
+            for (y = 0; y < 73; y++)
+                dup_outfile_diff_results << BAR_S;
+            dup_outfile_diff_results << endl;
+
+            dup_outfile_diff_results.setf(ofstream::left);
+            dup_outfile_diff_results.width(15);
+            dup_outfile_diff_results << dup_addedLines;
+
+            dup_outfile_diff_results.unsetf(ofstream::left);
+            dup_outfile_diff_results.width(3);
+            dup_outfile_diff_results << "| ";
+            dup_outfile_diff_results.setf(ofstream::left);
+            dup_outfile_diff_results.width(15);
+            dup_outfile_diff_results << dup_deletedLines;
+
+            dup_outfile_diff_results.unsetf(ofstream::left);
+            dup_outfile_diff_results.width(3);
+            dup_outfile_diff_results << "| ";
+            dup_outfile_diff_results.setf(ofstream::left);
+            dup_outfile_diff_results.width(15);
+            dup_outfile_diff_results << dup_modifiedLines;
+
+            dup_outfile_diff_results.unsetf(ofstream::left);
+            dup_outfile_diff_results.width(3);
+            dup_outfile_diff_results << "| ";
+            dup_outfile_diff_results.setf(ofstream::left);
+            dup_outfile_diff_results.width(15);
+            dup_outfile_diff_results << dup_unmodifiedLines;
+
+            dup_outfile_diff_results << endl << endl;
+        }
+    }
+    //CSV format
+    if (print_csv)
+    {
+        outfile_diff_csv << endl << "Total New Lines,Total Deleted Lines,Total Modified Lines,Total Unmodified Lines" << endl;
+        outfile_diff_csv << total_addedLines;
+        outfile_diff_csv << "," << total_deletedLines;
+        outfile_diff_csv << "," << total_modifiedLines;
+        outfile_diff_csv << "," << total_unmodifiedLines << endl;
+
+        if (printDup)
+        {
+            dup_outfile_diff_csv << endl << "Total New Lines,Total Deleted Lines,Total Modified Lines,Total Unmodified Lines" << endl;
+            dup_outfile_diff_csv << dup_addedLines;
+            dup_outfile_diff_csv << "," << dup_deletedLines;
+            dup_outfile_diff_csv << "," << dup_modifiedLines;
+            dup_outfile_diff_csv << "," << dup_unmodifiedLines << endl;
+        }
+    }
+
+    //Close file
+    if (print_ascii || print_legacy)
+    {
+        outfile_diff_results.close();
+        if (printDup)
+            dup_outfile_diff_results.close();
+    }
+    if (print_csv)
+    {
+        outfile_diff_csv.close();
+        if (printDup)
+            dup_outfile_diff_csv.close();
+    }
+
+    //close dump file stream, otherwise infile_file_dump will be buggy.
+    outfile_file_dump.close();
+
+    // output differences between baselines in highlight_diff.html if visualdiff switch is set
+    if (visualDiff) {
+        string fName = outDir + FILE_DUMP;
+        infile_file_dump.open(fName.c_str(), ifstream::in);
+        fName = outDir + HTML_DIFF;
+        html_diff_stream.open(fName.c_str(), ofstream::out);
+
+        CmpMngrHtml(infile_file_dump, html_diff_stream).PrintFileSetAsHtml();
+
         infile_file_dump.close();
         html_diff_stream.close();
     }

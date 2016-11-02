@@ -22,6 +22,8 @@
 #define BASELINE_INF2 "fileListB.txt"
 #define DIFF_OUTFILE "outfile_diff_results.txt"
 #define DIFF_OUTFILE_CSV "outfile_diff_results.csv"
+#define FUNC_DIFF_OUTFILE "outfile_func_diff_results.txt"
+#define FUNC_DIFF_OUTFILE_CSV "outfile_func_diff_results.csv"
 #define MATCH_PAIRS_OUTFILE "MatchedPairs.txt"
 #define MATCH_PAIRS_OUTFILE_CSV "MatchedPairs.csv"
 #define FILE_DUMP "diff_dump.txt"
@@ -102,6 +104,7 @@ private:
 	void ProcessPairs();
 	void PrintMatchedPairs();
 	void PrintDiffResults();
+	void PrintFuncDiffResults();
 
 	//! Pair of file name to source file element
 	/*!
