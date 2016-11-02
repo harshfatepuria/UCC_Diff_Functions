@@ -412,6 +412,16 @@ Output to files especially should be done single threaded from Main thread.
             dirnameB = tempDirB;
         }
 
+        //Close function level differencing output file
+        if (print_ascii || print_legacy)
+            outfile_diff_results.close();
+
+        if (print_csv)
+            outfile_diff_csv.close();
+
+        //close dump file stream, otherwise infile_file_dump will be buggy.
+        outfile_file_dump.close();
+
 #ifndef QTGUI
         userIF->updateProgress("DONE");
 #endif
@@ -2257,14 +2267,14 @@ void DiffTool::PrintDiffResults()
 
 /*!
 * 1. Function Description:
-*    Prints the results of the function level differencing.
+*    Prints the header for the function level differencing output.
 *
 * 2. Parameters:
 *
 * 3. Creation Time and Owner:
 *	 Version 2016.10
 */
-void DiffTool::PrintFuncDiffResults()
+void DiffTool::printFuncDiffResultsHeader()
 {
     // open the func diff results output file
     //ASCII format
@@ -2345,6 +2355,21 @@ void DiffTool::PrintFuncDiffResults()
         PrintFileHeader(outfile_diff_csv, "FUNCTION LEVEL DIFFERENCING RESULTS", cmdLine);
         outfile_diff_csv << "New Lines,Deleted Lines,Modified Lines,Unmodified Lines,Modification Type,Language,Module A,Module B" << endl;
     }
+}
+
+/*!
+* 1. Function Description:
+*    Prints the results of the function level differencing.
+*
+* 2. Parameters:
+*
+* 3. Creation Time and Owner:
+*	 Version 2016.10
+*/
+void DiffTool::PrintFuncDiffResults()
+{
+    string myCats[] = {"New", "Deleted", "Modified", "Unmodified", "Module"};
+    int i, y, numCats = 5;
 
     // print pair results
     resultStruct *myResults;
@@ -2528,14 +2553,4 @@ void DiffTool::PrintFuncDiffResults()
         outfile_diff_csv << "," << total_modifiedLines;
         outfile_diff_csv << "," << total_unmodifiedLines << endl;
     }
-
-    //Close file
-    if (print_ascii || print_legacy)
-        outfile_diff_results.close();
-
-    if (print_csv)
-        outfile_diff_csv.close();
-
-    //close dump file stream, otherwise infile_file_dump will be buggy.
-    outfile_file_dump.close();
 }
