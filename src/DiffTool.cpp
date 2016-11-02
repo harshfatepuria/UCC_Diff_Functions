@@ -403,6 +403,8 @@ Output to files especially should be done single threaded from Main thread.
 
             doFuncDiff = true;
 
+            total_addedLines = total_deletedLines = total_modifiedLines = total_unmodifiedLines = 0;
+
             funcDiffProcess();
 
             CUtil::RmPath(tempPathA);
