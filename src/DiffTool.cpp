@@ -370,10 +370,6 @@ Output to files especially should be done single threaded from Main thread.
 
             string tempPathA=tempDirA+"/tempA";
             string tempPathB=tempDirB+"/tempB";
-/*
-            boost::filesystem::create_directory(tempPathA);
-            boost::filesystem::create_directory(tempPathB);
-*/
 
             if (CUtil::MkPath(tempPathA) == 0)
             {
@@ -395,9 +391,11 @@ Output to files especially should be done single threaded from Main thread.
                 return 0;
             }
 
+            ClassType classTypeOfFile = (*myI).second.first->second.class_type;
+
             FunctionParser functionParser;
-            functionParser.pythonParser(fileA,tempPathA);
-            functionParser.pythonParser(fileB,tempPathB);
+            functionParser.callParser(fileA, tempPathA, classTypeOfFile);
+            functionParser.callParser(fileB, tempPathB, classTypeOfFile);
 
             dirnameA = dirnameA+"/tempA";
             dirnameB = dirnameB+"/tempB";

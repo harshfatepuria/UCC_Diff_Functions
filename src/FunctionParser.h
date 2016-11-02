@@ -8,6 +8,8 @@
 #ifndef FUNCTIONPARSER_H
 #define FUNCTIONPARSER_H
 
+#include "cc_main.h"
+
 using namespace std;
 
 class FunctionParser
@@ -15,6 +17,7 @@ class FunctionParser
 public:
     FunctionParser();
     ~FunctionParser();
+    void callParser(string filePath, string dirName, ClassType classTypeOfFile);
     void pythonParser(string filePath, string dirName);
     int numberOfSpacesAtBeginning(string& str);
     string trim(string& str);

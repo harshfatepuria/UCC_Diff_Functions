@@ -12,11 +12,37 @@
 #include <map>
 #include <vector>
 #include "FunctionParser.h"
+#include "cc_main.h"
 
 using namespace std;
 
 FunctionParser::FunctionParser() {}
 FunctionParser::~FunctionParser() {}
+
+/*
+* 1. Function Description:
+*    Call function parser as per the ClassType of file
+*
+* 2. Parameters:
+*    filePath:          path of python source code
+*	 dirName:           directory where the output files are to be stored
+*    classTypeOfFile:   class type of the file
+*
+* 3. Creation Time and Owner:
+*	 Version 2016.10
+*/
+void FunctionParser::callParser(string filePath, string dirName, ClassType classTypeOfFile)
+{
+    switch(classTypeOfFile)
+    {
+        case PYTHON: cout<<"\n\n\n! PYTHON IDENTIFIED !\n";
+                     pythonParser(filePath,dirName);
+                     break;
+        default:     cout<<"\n\nUNKNOWN CLASS TYPE. NO PARSER PRESENT FOR THIS CLASS TYPE!\n\n";
+                     break;
+    }
+}
+
 /*
 * 1. Function Description: 
 *    Trim white spaces in any given string
