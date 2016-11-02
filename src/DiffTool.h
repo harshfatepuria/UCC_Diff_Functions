@@ -105,6 +105,7 @@ private:
 	void PrintMatchedPairs();
 	void PrintDiffResults();
 	void PrintFuncDiffResults();
+	void printFuncDiffResultsHeader();
 
 	//! Pair of file name to source file element
 	/*!

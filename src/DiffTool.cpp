@@ -339,6 +339,8 @@ Output to files especially should be done single threaded from Main thread.
 
         string fileA, fileB;
 
+        printFuncDiffResultsHeader();
+
         // Traverse the matchedFilesList and perform function level matching
         for (MatchingType::iterator myI = tempMatchedFileList.begin(); myI != tempMatchedFileList.end(); myI++)
         {
