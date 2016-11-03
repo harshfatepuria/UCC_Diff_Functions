@@ -323,117 +323,16 @@ Output to files especially should be done single threaded from Main thread.
 	// Modification: 2011.05
 	PrintDiffResults();
 
-    // Modification: 2016.10
-#ifndef QTGUI
-    if(!doFuncDiff)userIF->updateProgress("DONE");         // Modification: 2016.10
-#endif
-
-    //Call function level difference method //Modification: 2016.10
-    if(isFuncDiff)
-    {
-        userIF->updateProgress("Performing function level differencing........", false);
-        MatchingType tempMatchedFileList = matchedFilesList;
-
-        string tempDirA = dirnameA;
-        string tempDirB = dirnameB;
-
-        string fileA, fileB;
-
-        printFuncDiffResultsHeader();
-
-        // Traverse the matchedFilesList and perform function level matching
-        for (MatchingType::iterator myI = tempMatchedFileList.begin(); myI != tempMatchedFileList.end(); myI++)
-        {
-            matchedFilesList.resize( 0 );
-            if ((*myI).second.first == NULL)
-            {
-                fileA = "NA";
-                continue; //for now. Has to be removed.
-            }
-            else {
-                if ((*myI).second.first->second.file_name_isEmbedded)
-                    continue;
-
-                fileA = (*myI).second.first->second.file_name;
-            }
-
-            if ((*myI).second.second == NULL)
-            {
-                fileB = "NA";
-                continue; //for now. Has to be removed.
-            }
-            else {
-                if ((*myI).second.second->second.file_name_isEmbedded)
-                    continue;
-
-                fileB = (*myI).second.second->second.file_name;
-            }
-
-            string tempPathA=tempDirA+"/tempA";
-            string tempPathB=tempDirB+"/tempB";
-
-            if (CUtil::MkPath(tempPathA) == 0)
-            {
-                string err = "Unable to create temporary output directory (";
-                err += tempPathA;
-                err += ")";
-                userIF->SetErrorFile("");
-                userIF->AddError(err);
-                return 0;
-            }
-
-            if (CUtil::MkPath(tempPathB) == 0)
-            {
-                string err = "Unable to create temporary output directory (";
-                err += tempPathB;
-                err += ")";
-                userIF->SetErrorFile("");
-                userIF->AddError(err);
-                return 0;
-            }
-
-            ClassType classTypeOfFile = (*myI).second.first->second.class_type;
-
-            FunctionParser functionParser;
-            functionParser.callParser(fileA, tempPathA, classTypeOfFile);
-            functionParser.callParser(fileB, tempPathB, classTypeOfFile);
-
-            dirnameA = dirnameA+"/tempA";
-            dirnameB = dirnameB+"/tempB";
-
-            doFuncDiff = true;
-
-            total_addedLines = total_deletedLines = total_modifiedLines = total_unmodifiedLines = 0;
-
-            funcDiffProcess();
-
-            CUtil::RmPath(tempPathA);
-            CUtil::RmPath(tempPathB);
-
-            dirnameA = tempDirA;
-            dirnameB = tempDirB;
-        }
-
-        //Close function level differencing output file
-        if (print_ascii || print_legacy)
-            outfile_diff_results.close();
-
-        if (print_csv)
-            outfile_diff_csv.close();
-
-        //close dump file stream, otherwise infile_file_dump will be buggy.
-        outfile_file_dump.close();
-
-#ifndef QTGUI
-        userIF->updateProgress("DONE");
-#endif
-    }
-
 	// Release Matched Files list as no longer needed
 	matchedFilesList.resize( 0 );
 
 	// Include small time to save Diff results files
 	time( &time_end_process_pairs );        // Modification: 2015.12
+
+    // Modification: 2013.04
+#ifndef QTGUI
+    userIF->updateProgress("DONE");         // Modification: 2015.12
+#endif
 
 	if ( HasUserCancelled() )
 		return 0;
@@ -443,7 +342,6 @@ Output to files especially should be done single threaded from Main thread.
 		time( &time_end_process_pairs );    // Modification: 2015.12
 
 		// This will show % done
-        if(!doFuncDiff)
 		userIF->updateProgress("Looking for duplicate files in Baseline-A ........", false);
 		FindDuplicateFiles( &SourceFileA, &duplicateFilesInA1, &duplicateFilesInA2, true, true );    // Modification: 2011.05
 
@@ -488,7 +386,6 @@ Output to files especially should be done single threaded from Main thread.
 		time( &time_end_print_results );    // Modification: 2015.12
 
 		// This will show % done
-        if(!doFuncDiff)
 		userIF->updateProgress("Looking for duplicate files in Baseline-B ........", false);
 		FindDuplicateFiles( &SourceFileB, &duplicateFilesInB1, &duplicateFilesInB2, true, false );    // Modification: 2011.05
 
@@ -530,17 +427,34 @@ Output to files especially should be done single threaded from Main thread.
 
 	time( &time_end_print_resultsB );    // Modification: 2015.12
 
-	return 1;
+    return 1;
 }
 
-
 /*
- * Perform function level differencing
- */
-int DiffTool::funcDiffProcess()
+* 1. Function Description:
+*    Performs function level differencing
+*
+* 2. Parameters:
+*    argc： number of arguments
+*    argv： argument list
+*
+* 3. Creation Time and Owner:
+*	 Version 2016.10
+*/
+int DiffTool::funcDiffProcess(int argc, char *argv[])
 {
-    SetCounterOptions( CounterForEachLanguage );
+    doFuncDiff = true;
 
+    if (userIF == NULL)
+        userIF = new UserIF();
+
+    BaselineFileName1 = BASELINE_INF1;
+    BaselineFileName2 = BASELINE_INF2;
+
+    if (!ParseCommandLine(argc, argv))
+        ShowUsage();
+
+    SetCounterOptions(CounterForEachLanguage);
 #ifdef QTGUI
     if (outDir != "")
 	{
@@ -548,35 +462,122 @@ int DiffTool::funcDiffProcess()
 		BaselineFileName2 = outDir + BASELINE_INF2;
 	}
 #endif
-    if ( HasUserCancelled() )
+
+    if (!ReadAllDiffFiles())
         return 0;
 
-    // Enable Optimizations.  Start threads if wanted.
-    // Threads must be started (if wanted) before file Extension maps are done.
-    string	start_threads_result_msg;
-    StartThreads( start_threads_result_msg );
-    if ( start_threads_result_msg.size() )
-        userIF->updateProgress( start_threads_result_msg, false );
+    MatchBaseLines(commonPathPrefixBoth);
 
-    if ( HasUserCancelled() )
-        return 0;
+    userIF->updateProgress("Performing function level differencing........", false);
 
-    // Get file details List for DIFF use.  Only Web file source lines are in RAM buffers here.
-    if ( !ReadAllDiffFiles() ) // Set time_end_list_built & Shows 2 msgs, 1 per Baseline
-        return 0;
+    string tempDirA = dirnameA;
+    string tempDirB = dirnameB;
 
-    if ( HasUserCancelled() )
-        return 0;
+    MatchingType tempMatchedFileList(matchedFilesList);
+    string fileA, fileB;
+    string tempPathA,tempPathB;
+    list<pair<pair<string, string> , ClassType> > listOfPairs;
 
-    MatchBaseLines( commonPathPrefixBoth );		// Extra info for faster Path matching
+    printFuncDiffResultsHeader();
 
-    if ( HasUserCancelled() )
-        return 0;
+    for (MatchingType::iterator myIt = tempMatchedFileList.begin(); myIt != tempMatchedFileList.end(); myIt++)
+    {
+        if ((*myIt).second.second == NULL)
+        {
+            fileA = "NA";
+            continue;
+        }
+        else
+        {
+            if ((*myIt).second.first->second.file_name_isEmbedded)
+                continue;
 
-    // Read/Analyze/Count keywords for a pair of files then Diff between
-    ProcessPairs();		// Recommended to Run on worker Threads
+            fileA = (*myIt).second.first->second.file_name;
+        }
 
-    PrintFuncDiffResults();
+        if ((*myIt).second.second == NULL)
+        {
+            fileB = "NA";
+            continue;
+        }
+        else
+        {
+            if ((*myIt).second.second->second.file_name_isEmbedded)
+                continue;
+
+            fileB = (*myIt).second.second->second.file_name;
+        }
+
+        listOfPairs.push_back(make_pair(make_pair(fileA, fileB), (*myIt).second.first->second.class_type));
+    }
+
+    for(list<pair<pair<string, string> , ClassType> >::iterator myIt = listOfPairs.begin(); myIt != listOfPairs.end(); myIt++)
+    {
+        fileA = (*myIt).first.first;
+        fileB = (*myIt).first.second;
+
+        tempPathA = tempDirA+"/tempA";
+        tempPathB = tempDirB+"/tempB";
+
+        if (CUtil::MkPath(tempPathA) == 0)
+        {
+            string err = "Unable to create temporary output directory (";
+            err += tempPathA;
+            err += ")";
+            userIF->SetErrorFile("");
+            userIF->AddError(err);
+            return 0;
+        }
+        if (CUtil::MkPath(tempPathB) == 0)
+        {
+            string err = "Unable to create temporary output directory (";
+            err += tempPathB;
+            err += ")";
+            userIF->SetErrorFile("");
+            userIF->AddError(err);
+            return 0;
+        }
+
+        ClassType classTypeOfFile = (*myIt).second;
+        FunctionParser functionParser;
+        functionParser.callParser(fileA, tempPathA, classTypeOfFile);
+        functionParser.callParser(fileB, tempPathB, classTypeOfFile);
+
+        dirnameA = tempPathA;
+        dirnameB = tempPathB;
+
+        total_addedLines = total_deletedLines = total_modifiedLines = total_unmodifiedLines = 0;
+
+        matchedFilesList.resize(0);
+        SourceFileA.resize(0);
+        SourceFileB.resize(0);
+        ReadAllDiffFiles();
+        MatchBaseLines(commonPathPrefixBoth);
+        ProcessPairs();
+        PrintFuncDiffResults();
+
+        CUtil::RmPath(tempPathA);
+        CUtil::RmPath(tempPathB);
+
+        dirnameA = tempDirA;
+        dirnameB = tempDirB;
+
+        fileA = fileB = "";
+    }
+
+    //Close function level differencing output file
+    if (print_ascii || print_legacy)
+        outfile_diff_results.close();
+
+    if (print_csv)
+        outfile_diff_csv.close();
+
+    //close dump file stream, otherwise infile_file_dump will be buggy.
+    outfile_file_dump.close();
+
+#ifndef QTGUI
+    userIF->updateProgress("DONE");
+#endif
 
     return 1;
 }

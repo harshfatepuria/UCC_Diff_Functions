@@ -35,8 +35,7 @@ void FunctionParser::callParser(string filePath, string dirName, ClassType class
 {
     switch(classTypeOfFile)
     {
-        case PYTHON: cout<<"\n\n\n! PYTHON IDENTIFIED !\n";
-                     pythonParser(filePath,dirName);
+        case PYTHON: pythonParser(filePath,dirName);
                      break;
         default:     cout<<"\n\nUNKNOWN CLASS TYPE. NO PARSER PRESENT FOR THIS CLASS TYPE!\n\n";
                      break;
@@ -169,12 +168,10 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  		methodCount=functions.size();
 	  		if (methodCount>0)
 	  		{
-	  				cout<<endl<<endl<<methodCount<<" methods identified:"<<endl;
 
 	  				int ii=1;
 	  			    for (set<string>::iterator it=functions.begin(); it!=functions.end(); ++it)
 	  			    {
-	  			    	cout <<"Method "<< ii <<" -->\t" << *it<<endl;
 	  			    	ii++;
 	  			    }
 	  		}
