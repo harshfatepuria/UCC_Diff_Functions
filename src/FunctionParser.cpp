@@ -13,6 +13,7 @@
 #include <vector>
 #include "FunctionParser.h"
 #include "cc_main.h"
+#include "CUtil.h"
 
 using namespace std;
 
@@ -42,33 +43,6 @@ void FunctionParser::callParser(string filePath, string dirName, ClassType class
     }
 }
 
-/*
-* 1. Function Description: 
-*    Trim white spaces in any given string
-*    Return the trimmed string
-*
-* 2. Parameters: 
-*    str： string to be trimmed
-*
-* 3. Creation Time and Owner: 
-*	 Version 2016.10
-*/
-string FunctionParser::trim(string& str)
-{
-    size_t first = str.find_first_not_of(' ');
-    size_t last = str.find_last_not_of(' ');
-    size_t first_tab = str.find_first_not_of('\t');
-    size_t last_tab = str.find_last_not_of(' ');
-    if (first_tab < first && first_tab != string::npos)
-    {
-    	return str.substr(first_tab, (last-first_tab+1));
-    }
-    else if (first==last && last==string::npos)
-    	return "";
-    else
-    	return str.substr(first, (last-first+1));
-}
-
 
 /*
 * 1. Function Description: 
@@ -82,7 +56,11 @@ string FunctionParser::trim(string& str)
 */
 int FunctionParser::numberOfSpacesAtBeginning(string& str)
 {
-	return str.find_first_not_of(' ');
+	size_t idx = str.find_first_not_of(" \t\n\r\f");
+    if (idx != string::npos)
+    	return idx;
+   	else
+   		return 0;
 }
 
 
@@ -129,52 +107,43 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  		for (map<int, string>::iterator it = fileMap.begin(); it != fileMap.end(); ++it) 
 	  		{
 	  		    string lineOfCode = it->second;
-	  		    string temp = trim(lineOfCode);
+	  		    string temp = CUtil::TrimString(lineOfCode);
 	  	    	if (temp.length()>0 && (temp.substr(0,4)).compare("def ")==0)
 	  	    	{
 	  	    		//size_t first = temp.find_first_of('(');
 	  	    	    size_t first = temp.find_last_of(')');
-	  	    		if (first==string::npos)
+	  	    		if (first == string::npos)
 	  	    		{
 	  	    			continue;
 	  	    		}
 	  	    		else
 	  	    		{
 	  	    			//found a method definition
-	  	    			string function_name=temp.substr(4,(first-3));
+	  	    			string function_name = temp.substr(4,(first - 3));
 	  	    			functions.insert(function_name);
 
 	  	    			ofstream newMethodFile;
-  						newMethodFile.open (dirName+"/"+function_name+".py");
+  						newMethodFile.open (dirName + "/" + function_name + ".py");
   						newMethodFile << lineOfCode << endl;
 
 
 	  	    			//finding the method body and storing the last line number in methodBodyMap
-	  	    			indentLevel=numberOfSpacesAtBeginning(lineOfCode);
-	  	    			map<int, string>::iterator it2=it;
+	  	    			indentLevel = numberOfSpacesAtBeginning(lineOfCode);
+	  	    			map<int, string>::iterator it2 = it;
 	  	    			it2++;
-	  	    			int methodIndentLevel=numberOfSpacesAtBeginning(it2->second);
-	  	    			while((trim(it2->second).length()==0 || methodIndentLevel>indentLevel || (((trim(it2->second)).substr(0,1)).compare("#")==0)) && it2 != fileMap.end())
+	  	    			int methodIndentLevel = numberOfSpacesAtBeginning(it2->second);
+	  	    			while((CUtil::TrimString(it2->second).length() == 0 || methodIndentLevel > indentLevel || (((CUtil::TrimString(it2->second)).substr(0,1)).compare("#") == 0)) && it2 != fileMap.end())
 	  	    			{
-	  	    				newMethodFile << it2->second << endl;
+	  	    				if (CUtil::TrimString(it2->second).length() > 0)
+	  	    				{
+	  	    					newMethodFile << it2->second << endl;
+	  	    				}
 	  	    				it2++;
-	  	    				int currentLineNumber= it2->first;
-	  	    				methodIndentLevel=numberOfSpacesAtBeginning(it2->second);
+	  	    				methodIndentLevel = numberOfSpacesAtBeginning(it2->second);
 	  	    			}
 	  	    			newMethodFile.close();
 	  	    		}
 	  	    	}
 	  		}
-
-	  		// methodCount=functions.size();
-	  		// if (methodCount>0)
-	  		// {
-
-	  		// 		int ii=1;
-	  		// 	    for (set<string>::iterator it=functions.begin(); it!=functions.end(); ++it)
-	  		// 	    {
-	  		// 	    	ii++;
-	  		// 	    }
-	  		// }
 	  	}
 }
