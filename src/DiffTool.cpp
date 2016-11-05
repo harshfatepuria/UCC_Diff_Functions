@@ -2402,6 +2402,43 @@ void DiffTool::PrintFuncDiffResults()
                 lang = GetLanguageName( CounterForEachLanguage, (*myI).second.second->second.class_type, (*myI).second.second->second.file_name );    // Modification: 2015.12
         }
 
+        if (filenameA.compare("NA") != 0)
+        {
+        	size_t last = filenameA.find_last_of('/');
+        	if ( last != string::npos)
+        	{
+        		filenameA=filenameA.substr(last+1,filenameA.length()-last-1);
+        	}
+        	last = filenameA.find_last_of('\\');
+        	if ( last != string::npos)
+        	{
+        		filenameA=filenameA.substr(last+1,filenameA.length()-last-1);
+        	}
+        	last = filenameA.find_last_of('.');
+        	if ( last != string::npos)
+        	{
+        		filenameA=filenameA.substr(0,last);
+        	}
+        }
+        if (filenameB.compare("NA") != 0)
+        {
+        	size_t last = filenameB.find_last_of('/');
+        	if ( last != string::npos)
+        	{
+        		filenameB=filenameB.substr(last+1,filenameB.length()-last-1);
+        	}
+        	last = filenameB.find_last_of('\\');
+        	if ( last != string::npos)
+        	{
+        		filenameB=filenameB.substr(last+1,filenameB.length()-last-1);
+        	}
+        	last = filenameB.find_last_of('.');
+        	if ( last != string::npos)
+        	{
+        		filenameB=filenameB.substr(0,last);
+        	}
+        }
+        
         // print pair results
         myResults = &((*myI).first);
         if (print_ascii || print_legacy)
@@ -2554,6 +2591,6 @@ void DiffTool::PrintFuncDiffResults()
         outfile_diff_csv << total_addedLines;
         outfile_diff_csv << "," << total_deletedLines;
         outfile_diff_csv << "," << total_modifiedLines;
-        outfile_diff_csv << "," << total_unmodifiedLines << endl;
+        outfile_diff_csv << "," << total_unmodifiedLines << endl << endl;
     }
 }

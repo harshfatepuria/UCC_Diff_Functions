@@ -132,7 +132,8 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  		    string temp = trim(lineOfCode);
 	  	    	if (temp.length()>0 && (temp.substr(0,4)).compare("def ")==0)
 	  	    	{
-	  	    		size_t first = temp.find_first_of('(');
+	  	    		//size_t first = temp.find_first_of('(');
+	  	    	    size_t first = temp.find_last_of(')');
 	  	    		if (first==string::npos)
 	  	    		{
 	  	    			continue;
@@ -140,7 +141,7 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  	    		else
 	  	    		{
 	  	    			//found a method definition
-	  	    			string function_name=temp.substr(4,(first-4));
+	  	    			string function_name=temp.substr(4,(first-3));
 	  	    			functions.insert(function_name);
 
 	  	    			ofstream newMethodFile;
@@ -165,15 +166,15 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  	    	}
 	  		}
 
-	  		methodCount=functions.size();
-	  		if (methodCount>0)
-	  		{
+	  		// methodCount=functions.size();
+	  		// if (methodCount>0)
+	  		// {
 
-	  				int ii=1;
-	  			    for (set<string>::iterator it=functions.begin(); it!=functions.end(); ++it)
-	  			    {
-	  			    	ii++;
-	  			    }
-	  		}
+	  		// 		int ii=1;
+	  		// 	    for (set<string>::iterator it=functions.begin(); it!=functions.end(); ++it)
+	  		// 	    {
+	  		// 	    	ii++;
+	  		// 	    }
+	  		// }
 	  	}
 }
