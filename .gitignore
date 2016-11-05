@@ -58,3 +58,5 @@ gui/gucc.pro.user
 src/CMakeLists.txt
 
 UCC
+
+build-gucc-Desktop_Qt_5_7_0_clang_64bit-Debug/GUCC.app/Contents/MacOS/UCC_Performance__10222016_102707.txt

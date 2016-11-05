@@ -2443,6 +2443,7 @@ void DiffTool::PrintFuncDiffResults()
         myResults = &((*myI).first);
         if (print_ascii || print_legacy)
         {
+        	outfile_diff_results << endl;
             outfile_diff_results.setf(ofstream::left);
             outfile_diff_results.width(15);
             outfile_diff_results << myResults->addedLines;
@@ -2486,6 +2487,7 @@ void DiffTool::PrintFuncDiffResults()
         }
         if (print_csv)
         {
+        	outfile_diff_csv << endl;
             outfile_diff_csv << myResults->addedLines;
             outfile_diff_csv << "," << myResults->deletedLines;
             outfile_diff_csv << "," << myResults->modifiedLines;
