@@ -554,6 +554,24 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
         ReadAllDiffFiles();
         MatchBaseLines(commonPathPrefixBoth);
         ProcessPairs();
+        if (print_ascii || print_legacy)
+        {
+            outfile_diff_results << "File Name A: ";
+            outfile_diff_results << fileA << "  ";
+            outfile_diff_results.width(3);
+            outfile_diff_results << "| ";
+            outfile_diff_results << "File Name B: ";
+            outfile_diff_results << fileB;
+            outfile_diff_results.width(3);
+            outfile_diff_results << "| " << endl;
+
+        }
+        if(print_csv)
+        {
+            outfile_diff_csv << endl;
+            outfile_diff_csv << "File Name A:" << "," << fileA << ",";
+            outfile_diff_csv << "File Name B:" << "," << fileB << endl;
+        }
         PrintFuncDiffResults();
 
         CUtil::RmPath(tempPathA);
@@ -2312,7 +2330,7 @@ void DiffTool::printFuncDiffResultsHeader()
     }
 
     // print the func diff results header.
-    string myCats[] = {"New", "Deleted", "Modified", "Unmodified", "Module"};
+    string myCats[] = {"New", "Deleted", "Modified", "Unmodified", "Function"};
     int i, y, numCats = 5;
 
     //ASCII format header
@@ -2356,7 +2374,7 @@ void DiffTool::printFuncDiffResultsHeader()
     if (print_csv)
     {
         PrintFileHeader(outfile_diff_csv, "FUNCTION LEVEL DIFFERENCING RESULTS", cmdLine);
-        outfile_diff_csv << "New Lines,Deleted Lines,Modified Lines,Unmodified Lines,Modification Type,Language,Module A,Module B" << endl;
+        outfile_diff_csv << "New Lines,Deleted Lines,Modified Lines,Unmodified Lines,Modification Type,Language,Function A,Function B" << endl;
     }
 }
 
@@ -2487,7 +2505,6 @@ void DiffTool::PrintFuncDiffResults()
         }
         if (print_csv)
         {
-        	outfile_diff_csv << endl;
             outfile_diff_csv << myResults->addedLines;
             outfile_diff_csv << "," << myResults->deletedLines;
             outfile_diff_csv << "," << myResults->modifiedLines;
@@ -2515,7 +2532,7 @@ void DiffTool::PrintFuncDiffResults()
     // ASCII format
     if (print_ascii || print_legacy)
     {
-        outfile_diff_results << endl << endl;
+        outfile_diff_results << endl;
         for (ti = 0; ti < numCats; ti++)
         {
             outfile_diff_results.setf(ofstream::left);
@@ -2584,7 +2601,7 @@ void DiffTool::PrintFuncDiffResults()
         outfile_diff_results.width(15);
         outfile_diff_results << total_unmodifiedLines;
 
-        outfile_diff_results << endl << endl;
+        outfile_diff_results << endl << endl << endl;
     }
     //CSV format
     if (print_csv)
