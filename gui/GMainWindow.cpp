@@ -485,6 +485,7 @@ void GMainWindow::on_btnStart_clicked()
     double			duplicate_threshold_used = 0.0;
     unsigned long	files_A_count = 0;
     unsigned long	files_B_count = 0;
+    isFuncDiff = false;
 	if (ui.chkDifferencing->isChecked())
 	{
         doDiff = true;
@@ -512,7 +513,7 @@ void GMainWindow::on_btnStart_clicked()
             SourceFileA.resize(0);
             SourceFileB.resize(0);
             DiffTool funcDiffTool;
-            funcDiffTool.funcDiffProcess(argc, argv);
+            funcDiffTool.funcDiffProcess(argList.count(), argv);
         }
     }
 	else
