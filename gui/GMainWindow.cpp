@@ -506,6 +506,14 @@ void GMainWindow::on_btnStart_clicked()
 
         files_B_count = SourceFileB.size();                             // Modification: 2015.12
         CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12*/
+
+        if(isFuncDiff)
+        {
+            SourceFileA.resize(0);
+            SourceFileB.resize(0);
+            DiffTool funcDiffTool;
+            funcDiffTool.funcDiffProcess(argc, argv);
+        }
     }
 	else
 	{
