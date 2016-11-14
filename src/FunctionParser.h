@@ -20,6 +20,7 @@ public:
     void callParser(string filePath, string dirName, ClassType classTypeOfFile);
     void pythonParser(string filePath, string dirName);
     void fortranParser(string filePath, string dirName);
+    void verilogParser(string filePath, string dirName);
     int numberOfSpacesAtBeginning(string& str);
 };
 
