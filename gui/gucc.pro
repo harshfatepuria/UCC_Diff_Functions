@@ -23,7 +23,7 @@ CONFIG	+= qt warn_on debug_and_release no_batch
 # Modification: 2016.01; USC
 # Fixed mingw 4.9.1 compilation errors
 CONFIG  += c++11
-INCLUDEPATH += /usr/local//Cellar/boost/1.62.0/include/
+
 TEMPLATE	= app
 LANGUAGE	= C++
 
