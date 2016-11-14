@@ -36,8 +36,10 @@ void FunctionParser::callParser(string filePath, string dirName, ClassType class
 {
     switch(classTypeOfFile)
     {
-        case PYTHON: pythonParser(filePath,dirName);
-                     break;
+        case PYTHON: 	pythonParser(filePath, dirName);
+                     	break;
+        case FORTRAN: 	fortranParser(filePath, dirName);
+        				break;
         default:     cout<<"\n\nUNKNOWN CLASS TYPE. NO PARSER PRESENT FOR THIS CLASS TYPE!\n\n";
                      break;
     }
@@ -141,6 +143,90 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  	    				it2++;
 	  	    				methodIndentLevel = numberOfSpacesAtBeginning(it2->second);
 	  	    			}
+	  	    			newMethodFile.close();
+	  	    		}
+	  	    	}
+	  		}
+	  	}
+}
+
+
+
+
+/*
+* 1. Function Description: 
+*    Parse the methods in a given fortran source code file and store them in different files
+*
+* 2. Parameters: 
+*    filePath:  path of fortran source code
+*	 dirName:	directory where the output files are to be stored
+*
+* 3. Creation Time and Owner: 
+*	 Version 2016.11
+*/
+void FunctionParser::fortranParser(string filePath, string dirName)
+{
+		set<string> functions; //set storing unique method names
+		map<int, string> fileMap; //map storing all lines of code against lineNumber
+
+		string line;
+	  	ifstream myfile (filePath); //file to be read
+	  	int lineNumber = 1;
+	  	int methodCount=0;
+
+	  	//code to read input fortran code and store the lines in fileMap
+	  	if (myfile.is_open())
+	  	{
+	  	  while ( getline (myfile,line))
+	  	  {
+	  	  	fileMap[lineNumber]=line;
+	  	  	lineNumber++;
+	  	  }
+	  	  myfile.close();
+	  	}
+	  	else 
+	  		cout << "Unable to open file" <<endl;
+
+	  	//iterating through the fileMap to identify methods in the fortran code
+	  	if (fileMap.size()>0)
+	  	{
+	  		for (map<int, string>::iterator it = fileMap.begin(); it != fileMap.end(); ++it) 
+	  		{
+	  		    string lineOfCode = it->second;
+	  		    string temp = CUtil::TrimString(lineOfCode);
+	  	    	if (temp.length()>0 && (CUtil::ToLower(temp.substr(0,9))).compare("function ")==0)
+	  	    	{
+	  	    		//size_t first = temp.find_first_of('(');
+	  	    	    size_t first = temp.find_last_of(')');
+	  	    		if (first == string::npos)
+	  	    		{
+	  	    			continue;
+	  	    		}
+	  	    		else
+	  	    		{
+	  	    			//found a method definition
+	  	    			string function_name = temp.substr(9,(first - 8));
+	  	    			functions.insert(function_name);
+
+	  	    			ofstream newMethodFile;
+  						newMethodFile.open (dirName + "/" + function_name + ".f");
+  						newMethodFile << lineOfCode << endl;
+
+
+	  	    			map<int, string>::iterator it2 = it;
+	  	    			it2++;
+	  	    			int isEndFunctionPresent = (CUtil::ToLower(CUtil::TrimString(it2->second).substr(0,12))).compare("end function");
+	  	    			while((CUtil::TrimString(it2->second).length() == 0 || isEndFunctionPresent != 0) && it2 != fileMap.end())
+	  	    			{
+	  	    				if (CUtil::TrimString(it2->second).length() > 0)
+	  	    				{
+	  	    					newMethodFile << it2->second << endl;
+	  	    				}
+	  	    				it2++;
+	  	    				isEndFunctionPresent = (CUtil::ToLower(CUtil::TrimString(it2->second).substr(0,12))).compare("end function");	
+	  	    			}
+	  	    			if (isEndFunctionPresent == 0)
+	  	    				newMethodFile << it2->second << endl;
 	  	    			newMethodFile.close();
 	  	    		}
 	  	    	}
