@@ -2388,7 +2388,7 @@ void DiffTool::printFuncDiffResultsHeader()
     if (print_csv)
     {
         PrintFileHeader(outfile_diff_csv, "FUNCTION LEVEL DIFFERENCING RESULTS", cmdLine);
-        outfile_diff_csv << "New Lines,Deleted Lines,Modified Lines,Unmodified Lines,Modification Type,Language,Function A,Function B" << endl;
+        outfile_diff_csv << "New Lines,Deleted Lines,Modified Lines,Unmodified Lines,Modification Type,Language,Baseline A Methods,Baseline B Methods" << endl;
     }
 }
 
