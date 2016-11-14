@@ -463,7 +463,21 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
 	}
 #endif
 
+    if (HasUserCancelled())
+        return 0;
+
+    string	start_threads_result_msg;
+    StartThreads(start_threads_result_msg);
+    if (start_threads_result_msg.size())
+        userIF->updateProgress(start_threads_result_msg, false);
+
+    if (HasUserCancelled())
+        return 0;
+
     if (!ReadAllDiffFiles())
+        return 0;
+
+    if (HasUserCancelled())
         return 0;
 
     MatchBaseLines(commonPathPrefixBoth);
