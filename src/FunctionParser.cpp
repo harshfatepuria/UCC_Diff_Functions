@@ -87,7 +87,7 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 		vector<int> lineNumberOfComments;
 
 		string line;
-	  	ifstream myfile (filePath); //file to be read
+	  	ifstream myfile (filePath.c_str()); //file to be read
 	  	int lineNumber = 1;
 	  	int methodCount=0;
 	  	int indentLevel=0;
@@ -171,7 +171,7 @@ void FunctionParser::fortranParser(string filePath, string dirName)
 		map<int, string> fileMap; //map storing all lines of code against lineNumber
 
 		string line;
-	  	ifstream myfile (filePath); //file to be read
+	  	ifstream myfile (filePath.c_str()); //file to be read
 	  	int lineNumber = 1;
 	  	int methodCount=0;
 
@@ -255,7 +255,7 @@ void FunctionParser::verilogParser(string filePath, string dirName)
 		map<int, string> fileMap; //map storing all lines of code against lineNumber
 
 		string line;
-	  	ifstream myfile (filePath); //file to be read
+	  	ifstream myfile (filePath.c_str()); //file to be read
 	  	int lineNumber = 1;
 	  	int methodCount=0;
 
