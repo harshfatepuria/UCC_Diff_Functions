@@ -126,7 +126,8 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  	    			functions.insert(function_name);
 
 	  	    			ofstream newMethodFile;
-  						newMethodFile.open (dirName + "/" + function_name + ".py");
+	  	    			string nameOfMethodFile = dirName + "/" + function_name + ".py";
+  						newMethodFile.open (nameOfMethodFile.c_str());
   						newMethodFile << lineOfCode << endl;
 
 
@@ -209,7 +210,8 @@ void FunctionParser::fortranParser(string filePath, string dirName)
 	  	    			functions.insert(function_name);
 
 	  	    			ofstream newMethodFile;
-  						newMethodFile.open (dirName + "/" + function_name + ".f");
+	  	    			string nameOfMethodFile = dirName + "/" + function_name + ".f";
+  						newMethodFile.open (nameOfMethodFile.c_str());
   						newMethodFile << lineOfCode << endl;
 
 
@@ -293,7 +295,8 @@ void FunctionParser::verilogParser(string filePath, string dirName)
 	  	    			functions.insert(function_name);
 
 	  	    			ofstream newMethodFile;
-  						newMethodFile.open (dirName + "/" + function_name + ".v");
+	  	    			string nameOfMethodFile = dirName + "/" + function_name + ".v";
+  						newMethodFile.open (nameOfMethodFile.c_str());
   						newMethodFile << lineOfCode << endl;
 
 
