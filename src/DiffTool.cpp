@@ -496,7 +496,7 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
 
     for (MatchingType::iterator myIt = tempMatchedFileList.begin(); myIt != tempMatchedFileList.end(); myIt++)
     {
-        if ((*myIt).second.second == NULL)
+        if ((*myIt).second.first == NULL)
         {
             fileA = "NA";
             continue;
