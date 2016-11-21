@@ -891,7 +891,7 @@ void MainObject::ShowUsage(const string &option, bool do_exit, string * outMsg )
 		msg += "Usage: ucc -v\n\n";
 		msg += " -v: Displays the current version of UCC being executed\n";
 	}
-	else if (option == "-d" || option == "-i1" || option == "-i2" || option == "-t")
+	else if (option == "-d" || option == "-i1" || option == "-i2" || option == "-t" || option == "-funcDiff")
 	{
 		msg += "Usage: ucc -d [-i1 <fileListA>] [-i2 <fileListB>] [-t <#>]\n\n";
 		msg += " -d: Enables the differencing function. If not specified, only the\n";
@@ -917,6 +917,7 @@ void MainObject::ShowUsage(const string &option, bool do_exit, string * outMsg )
         msg += "  -visualdiff:     Enables visual differencing. This causes differences between\n";  // Modification: 2014.08s
         msg += "                   baselines to be logged in diff_dump.txt and highlighted_diff.html\n"; // Modification: 2014.08s
         msg += "                   for future visual inspection.  Not supported if -threads used.\n";    // Modification: 2015.12
+		msg += "  -funcDiff:       Enables function level differencing. This option works only when -d is enabled.\n";  //Modification: 2016.11
 	}
     else if (option == "-tdup") // Modification: 2011.10
 	{
@@ -1136,6 +1137,7 @@ void MainObject::ShowUsage(const string &option, bool do_exit, string * outMsg )
 		msg += " -v                 Lists the current version number.\n";
 		msg += " -d                 Runs the differencing function.\n";
 		msg += "                      If not specified, runs the counting function.\n";
+		msg += " -funcDiff          Enables function level differencing. This option works only when -d is enabled.\n";  //Modification 2016.11
 		msg += " -i1 <fileListA>    Filename containing filenames in the Baseline A.\n";
 		msg += " -i2 <fileListB>    Filename containing filenames in the Baseline B.\n";
 		msg += " -t <#>             Specifies the threshold percentage for a modified line.\n";
