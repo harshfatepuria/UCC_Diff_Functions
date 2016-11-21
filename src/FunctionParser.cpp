@@ -42,11 +42,12 @@ void FunctionParser::callParser(string filePath, string dirName, ClassType class
         				break;
         case VERILOG:	verilogParser(filePath, dirName);
         				break;
+        case IDL:		idlParser(filePath, dirName);
+        				break;
         default:     cout<<"\n\nUNKNOWN CLASS TYPE. NO PARSER PRESENT FOR THIS CLASS TYPE!\n\n";
                      break;
     }
 }
-
 
 /*
 * 1. Function Description: 
@@ -66,7 +67,6 @@ int FunctionParser::numberOfSpacesAtBeginning(string& str)
    	else
    		return 0;
 }
-
 
 /*
 * 1. Function Description: 
@@ -152,9 +152,6 @@ void FunctionParser::pythonParser(string filePath, string dirName)
 	  	}
 }
 
-
-
-
 /*
 * 1. Function Description: 
 *    Parse the methods in a given fortran source code file and store them in different files
@@ -236,10 +233,6 @@ void FunctionParser::fortranParser(string filePath, string dirName)
 	  	}
 }
 
-
-
-
-
 /*
 * 1. Function Description: 
 *    Parse the methods in a given verilog source code file and store them in different files
@@ -311,6 +304,131 @@ void FunctionParser::verilogParser(string filePath, string dirName)
 	  	    				}
 	  	    				it2++;
 	  	    				isEndFunctionPresent = (CUtil::ToLower(CUtil::TrimString(it2->second).substr(0,11))).compare("endfunction");	
+	  	    			}
+	  	    			if (isEndFunctionPresent == 0)
+	  	    				newMethodFile << it2->second << endl;
+	  	    			newMethodFile.close();
+	  	    		}
+	  	    	}
+	  		}
+	  	}
+}
+
+/*
+* 1. Function Description: 
+*    Parse the methods in a given IDL source code file and store them in different files
+*
+* 2. Parameters: 
+*    filePath:  path of IDL source code
+*	 dirName:	directory where the output files are to be stored
+*
+* 3. Creation Time and Owner: 
+*	 Version 2016.11
+*/
+void FunctionParser::idlParser(string filePath, string dirName)
+{
+		set<string> functions; //set storing unique method names
+		map<int, string> fileMap; //map storing all lines of code against lineNumber
+
+		string line;
+	  	ifstream myfile (filePath.c_str()); //file to be read
+	  	int lineNumber = 1;
+	  	int methodCount=0;
+
+	  	//code to read input IDL code and store the lines in fileMap
+	  	if (myfile.is_open())
+	  	{
+	  	  while ( getline (myfile,line))
+	  	  {
+	  	  	fileMap[lineNumber]=line;
+	  	  	lineNumber++;
+	  	  }
+	  	  myfile.close();
+	  	}
+	  	else 
+	  		cout << "Unable to open file" <<endl;
+
+	  	//iterating through the fileMap to identify methods in the IDL code
+	  	if (fileMap.size()>0)
+	  	{
+	  		for (map<int, string>::iterator it = fileMap.begin(); it != fileMap.end(); ++it) 
+	  		{
+	  		    string lineOfCode = it->second;
+	  		    string temp = CUtil::TrimString(lineOfCode);
+	  	    	if (temp.length()>0 && (CUtil::ToLower(temp.substr(0,9))).compare("function ")==0)
+	  	    	{
+	  	    	    size_t first = temp.find_first_of(',');
+	  	    		if (first == string::npos)
+	  	    		{
+	  	    			first = temp.find_first_of(';');
+	  	    			if (first == string::npos)
+	  	    			{
+	  	    				temp = temp + " ";
+	  	    				first = temp.find_last_of(' ');
+	  	    			}	
+	  	    		}
+	  	    		if (first != string::npos)
+	  	    		{
+	  	    			//found a method definition
+	  	    			string function_name = temp.substr(9,(first - 9));
+	  	    			functions.insert(function_name);
+
+	  	    			ofstream newMethodFile;
+	  	    			string nameOfMethodFile = dirName + "/" + function_name + ".pro";
+  						newMethodFile.open (nameOfMethodFile.c_str());
+  						newMethodFile << lineOfCode << endl;
+
+	  	    			map<int, string>::iterator it2 = it;
+	  	    			it2++;
+	  	    			int isEndFunctionPresent = (CUtil::ToLower(CUtil::TrimString(it2->second).substr(0,3))).compare("end");
+	  	    			while((CUtil::TrimString(it2->second).length() == 0 || isEndFunctionPresent != 0) && it2 != fileMap.end())
+	  	    			{
+	  	    				if (CUtil::TrimString(it2->second).length() > 0)
+	  	    				{
+	  	    					newMethodFile << it2->second << endl;
+	  	    				}
+	  	    				it2++;
+	  	    				isEndFunctionPresent = (CUtil::ToLower(CUtil::TrimString(it2->second).substr(0,3))).compare("end");	
+	  	    			}
+	  	    			if (isEndFunctionPresent == 0)
+	  	    				newMethodFile << it2->second << endl;
+	  	    			newMethodFile.close();
+	  	    		}
+	  	    	}
+	  	    	if (temp.length()>0 && (CUtil::ToLower(temp.substr(0,4))).compare("pro ")==0)
+	  	    	{
+	  	    	    size_t first = temp.find_first_of(',');
+	  	    		if (first == string::npos)
+	  	    		{
+	  	    			first = temp.find_first_of(';');
+	  	    			if (first == string::npos)
+	  	    			{
+	  	    				temp = temp + " ";
+	  	    				first = temp.find_last_of(' ');
+	  	    			}	
+	  	    		}
+	  	    		if (first != string::npos)
+	  	    		{
+	  	    			//found a method definition
+	  	    			string function_name = temp.substr(4,(first - 4));
+	  	    			functions.insert(function_name);
+
+	  	    			ofstream newMethodFile;
+	  	    			string nameOfMethodFile = dirName + "/" + function_name + ".pro";
+  						newMethodFile.open (nameOfMethodFile.c_str());
+  						newMethodFile << lineOfCode << endl;
+
+	  	    			map<int, string>::iterator it2 = it;
+	  	    			it2++;
+	  	    			int isEndFunctionPresent = (CUtil::ToLower(CUtil::TrimString(it2->second).substr(0,3))).compare("end");
+	  	    			while((CUtil::TrimString(it2->second).length() == 0 || isEndFunctionPresent != 0) && it2 != fileMap.end())
+	  	    			{
+	  	    				if (CUtil::TrimString(it2->second).length() > 0)
+	  	    				{
+	  	    					newMethodFile << it2->second << endl;
+	  	    				}
+	  	    				it2++;
+	  	    				isEndFunctionPresent = (CUtil::ToLower(CUtil::TrimString(it2->second).substr(0,3))).compare("end");	
 	  	    			}
 	  	    			if (isEndFunctionPresent == 0)
 	  	    				newMethodFile << it2->second << endl;

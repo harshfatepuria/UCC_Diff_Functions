@@ -21,6 +21,7 @@ public:
     void pythonParser(string filePath, string dirName);
     void fortranParser(string filePath, string dirName);
     void verilogParser(string filePath, string dirName);
+    void idlParser(string filePath, string dirName);
     int numberOfSpacesAtBeginning(string& str);
 };
 
