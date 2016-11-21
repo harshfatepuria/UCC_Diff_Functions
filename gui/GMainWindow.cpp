@@ -144,12 +144,6 @@ void GMainWindow::on_btnStart_clicked()
 		return;
 	}
 
-    if (!ui.chkDifferencing->isChecked() && ui.chkFuncDifferencing->isChecked())
-    {
-        QMessageBox::warning(this, tr("Function Level Differencing is supported with Differencing only"), tr("For Function Level Differencing, you must select Differencing option as well"));
-        return;
-    }
-
     if ( ( ui.chkDifferencing->isChecked() )
       && ( ( 0 == ui.lwFileListA->count() ) || ( 0 == ui.lwFileListB->count() ) ) )
     {
@@ -376,7 +370,8 @@ void GMainWindow::on_btnStart_clicked()
         if(ui.chkVisualDiffResult->isChecked()){
             argList.append("-visualdiff");
         }
-        if(ui.chkFuncDifferencing->isChecked()){
+        if(ui.chkFuncDifferencing->isChecked())
+        {
             argList.append("-funcDiff");
         }
     }
@@ -485,13 +480,16 @@ void GMainWindow::on_btnStart_clicked()
     double			duplicate_threshold_used = 0.0;
     unsigned long	files_A_count = 0;
     unsigned long	files_B_count = 0;
-    isFuncDiff = false;
 	if (ui.chkDifferencing->isChecked())
 	{
         doDiff = true;
         if (ui.chkFuncDifferencing->isChecked())
         {
             isFuncDiff = true;
+        }
+        else
+        {
+            isFuncDiff = false;
         }
 
         DiffTool diffTool;
@@ -508,6 +506,7 @@ void GMainWindow::on_btnStart_clicked()
         files_B_count = SourceFileB.size();                             // Modification: 2015.12
         CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12*/
 
+        //Modification 2016.10
         if(isFuncDiff)
         {
             SourceFileA.resize(0);
@@ -1106,6 +1105,9 @@ void GMainWindow::on_chkDifferencing_clicked()
 
 		// enable the modified threshold check box
 		ui.chkModThreshold->setEnabled(true);
+
+        //enable the function differencing checkbox
+        ui.chkFuncDifferencing->setEnabled(true);
 	}
 	else
 	{
@@ -1123,6 +1125,9 @@ void GMainWindow::on_chkDifferencing_clicked()
 
 		// disable the modified threshold check box
 		ui.chkModThreshold->setEnabled(false);
+
+        //disable the function differencing checkbox
+        ui.chkFuncDifferencing->setEnabled(false);
 	}
 }
 
