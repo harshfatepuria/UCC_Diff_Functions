@@ -182,7 +182,7 @@ class MLClass:
 
 		for line in test1_data:
 			test_results.append(clf.predict([line])[0])
-		print "Accuracy in test: ",metrics.accuracy_score(test1_label,test_results)
+		print "Accuracy in test and display: ",metrics.accuracy_score(test1_label,test_results)
 
 
 	def perform_svm_rbf(self,typeOfTest,test_start,test_end,validate_start,validate_end,train_start,train_end):
