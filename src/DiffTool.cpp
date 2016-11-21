@@ -499,7 +499,6 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
         if ((*myIt).second.first == NULL)
         {
             fileA = "NA";
-            continue;
         }
         else
         {
@@ -512,7 +511,6 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
         if ((*myIt).second.second == NULL)
         {
             fileB = "NA";
-            continue;
         }
         else
         {
@@ -522,7 +520,14 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
             fileB = (*myIt).second.second->second.file_name;
         }
 
-        listOfPairs.push_back(make_pair(make_pair(fileA, fileB), (*myIt).second.first->second.class_type));
+        if (fileA.compare("NA")!=0)
+        {
+        	listOfPairs.push_back(make_pair(make_pair(fileA, fileB), (*myIt).second.first->second.class_type));
+    	}
+    	else if (fileB.compare("NA")!=0)
+    	{
+    		listOfPairs.push_back(make_pair(make_pair(fileA, fileB), (*myIt).second.second->second.class_type));
+    	}
     }
 
     for(list<pair<pair<string, string> , ClassType> >::iterator myIt = listOfPairs.begin(); myIt != listOfPairs.end(); myIt++)
@@ -554,8 +559,16 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
 
         ClassType classTypeOfFile = (*myIt).second;
         FunctionParser functionParser;
-        functionParser.callParser(fileA, tempPathA, classTypeOfFile);
-        functionParser.callParser(fileB, tempPathB, classTypeOfFile);
+
+        if (fileA.compare("NA")!=0)
+        {
+        	functionParser.callParser(fileA, tempPathA, classTypeOfFile);
+        }
+       	if (fileB.compare("NA")!=0)
+       	{
+       		classTypeOfFile = (*myIt).second;
+        	functionParser.callParser(fileB, tempPathB, classTypeOfFile);
+        }
 
         dirnameA = tempPathA;
         dirnameB = tempPathB;
@@ -586,10 +599,27 @@ int DiffTool::funcDiffProcess(int argc, char *argv[])
             outfile_diff_csv << "File Name A:" << "," << fileA << ",";
             outfile_diff_csv << "File Name B:" << "," << fileB << endl;
         }
+        
         PrintFuncDiffResults();
 
-        CUtil::RmPath(tempPathA);
-        CUtil::RmPath(tempPathB);
+        if (CUtil::RmPath(tempPathA)==0)
+        {
+        	string err = "Unable to delete directory (";
+        	err += tempPathA;
+        	err += ")";
+        	userIF->SetErrorFile("");
+        	userIF->AddError(err);
+        	return 0;
+        }
+        if (CUtil::RmPath(tempPathB)==0)
+        {
+        	string err = "Unable to delete directory (";
+        	err += tempPathB;
+        	err += ")";
+        	userIF->SetErrorFile("");
+        	userIF->AddError(err);
+        	return 0;
+        }
 
         dirnameA = tempDirA;
         dirnameB = tempDirB;
