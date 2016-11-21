@@ -14,8 +14,8 @@
 #include <iomanip>   // Modification: 2015.12
 #include <sstream>   // Modification: 2009.01
 #include <string>    // Modification: 2015.12
-#include <dirent.h>
-#include <unistd.h>
+#include <dirent.h> //Modification: 2016.10
+#include <unistd.h>  //Modification: 2016.10
 
 using namespace std;
 

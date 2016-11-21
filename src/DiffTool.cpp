@@ -9,7 +9,7 @@
 #include "DiffTool.h"
 #include "CUtil.h"
 #include "UCCFilesOut.h"     // Modification: 2015.12
-#include "FunctionParser.h"
+#include "FunctionParser.h"  //Modification: 2016.10
 
 using namespace std;
 
@@ -79,7 +79,7 @@ DiffTool::DiffTool()
 {
 	// this is the summary count information
 	isDiff = true;
-    doFuncDiff = false;
+    doFuncDiff = false; //Modification 2016.10
 	// Modification: 2007.07
 	total_addedLines = total_deletedLines = total_modifiedLines = total_unmodifiedLines = 0;
 	dup_addedLines = dup_deletedLines = dup_modifiedLines = dup_unmodifiedLines = 0;
@@ -257,7 +257,6 @@ Output to files especially should be done single threaded from Main thread.
 
 	if ( HasUserCancelled() )
 		return 0;
-
 	
 	// Get file details List for DIFF use.  Only Web file source lines are in RAM buffers here.
 	// Modification: 2011.05
@@ -329,9 +328,9 @@ Output to files especially should be done single threaded from Main thread.
 	// Include small time to save Diff results files
 	time( &time_end_process_pairs );        // Modification: 2015.12
 
-    // Modification: 2013.04
+	// Modification: 2013.04
 #ifndef QTGUI
-    userIF->updateProgress("DONE");         // Modification: 2015.12
+	userIF->updateProgress("DONE");         // Modification: 2015.12
 #endif
 
 	if ( HasUserCancelled() )
@@ -427,7 +426,7 @@ Output to files especially should be done single threaded from Main thread.
 
 	time( &time_end_print_resultsB );    // Modification: 2015.12
 
-    return 1;
+	return 1;
 }
 
 /*

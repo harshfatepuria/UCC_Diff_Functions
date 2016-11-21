@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	double			duplicate_threshold_used = 0.0;
 	unsigned long	files_A_count = 0;
 	unsigned long	files_B_count = 0;
-    isFuncDiff = false;
+    isFuncDiff = false; //Modification 2016.10
 
 	Init_StackDump();		// Modification: 2015.12
 	CUtil::InitToLower();	// Initialize to lower helper array
@@ -124,6 +124,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
+        //Modification 2016.10
 		for (int i = 0; i < argc; i++)
 		{
 			myArg = argv[i];
@@ -150,6 +151,8 @@ int main(int argc, char *argv[])
 			files_B_count = SourceFileB.size();                             // Modification: 2015.12
 			CountPhysicalFiles( SourceFileB, files_B_count );               // Modification: 2015.12
 
+            //Modification 2016.10
+            //Runs function level differencing
             if(isFuncDiff)
             {
                 SourceFileA.resize(0);

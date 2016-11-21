@@ -78,7 +78,7 @@ extern	time_t	time_end_find_duplicates;
 extern	string		cmdLine;							//!< Executed command line string
 
 extern	bool		isDiff;								//!< Has differencing been requested (-d)?
-extern  bool        isFuncDiff;
+extern  bool        isFuncDiff;                         //!< Has function level differencing been requested (-funcDiff)? //Modification 2016.10
 // extern	bool	visualDiff;							// Visual diff to file and HTML, must explictly declare extern elsewhere
 
 extern	bool		isDup;								//!< Is Duplicate checking wanted ? ( duplicate_threshold >= 0.0 )

@@ -852,7 +852,7 @@ int MainObject::ParseCommandLine(int argc, char *argv[])
 		{
 			g_no_uncounted = true;
 		}
-		else if( arg == "-funcDiff" )
+		else if( arg == "-funcDiff" ) //Modification 2016.10
 		{
 			//Ignore
 		}
@@ -1846,6 +1846,7 @@ int MainObject::ReadAllFiles(StringVector &inputFileVector, string const &inputF
 
 	if ( isDiff )
 	{
+		//Modification 2016.10
 		if(!doFuncDiff)
 		{
 		if ( useListA )
@@ -1987,6 +1988,7 @@ int MainObject::ReadAllFiles(StringVector &inputFileVector, string const &inputF
 #else
 	// Just erase the last 10 characters
 	cout << "\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b";
+	//Modification 2016.10
     if(!doFuncDiff)cout << "\b\b\b\bDONE\n";		// And to adjust for not using calls to update progress
 #endif
 
@@ -2390,7 +2392,7 @@ void MainObject::FindDuplicateFiles(SourceFileList * pFileList, StringVector * d
 #ifndef	QTGUI
 	cout << "\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b" << flush;
 #endif
-	if(!doFuncDiff)userIF->updateProgress("\b\b\b\bDONE");
+	if(!doFuncDiff)userIF->updateProgress("\b\b\b\bDONE");//Modification 2016.10
 
 
 	if ( workThreadsCount >= MIN_UCC_THREAD_COUNT )
